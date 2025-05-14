@@ -5,17 +5,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupSesiFields();
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+ddocument.addEventListener("DOMContentLoaded", function() {
   google.script.run.withSuccessHandler(function(data) {
-    dataPegawai = data;
+    dataPegawai = data; // Data yang diterima adalah array nama pegawai
     const namaSelect = document.getElementById("nama");
-    data.forEach(row => {
+    data.forEach(function(nama) {
       const option = document.createElement("option");
-      option.value = row;
-      option.textContent = row;
+      option.value = nama;
+      option.textContent = nama;
       namaSelect.appendChild(option);
     });
-  }).getNamaPegawai();
+  }).doGetPegawai(); // Menggunakan API untuk mengambil nama pegawai
 });
 
 async function loadPegawai() {
