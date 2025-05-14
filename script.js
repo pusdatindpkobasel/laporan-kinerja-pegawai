@@ -118,3 +118,18 @@ function toBase64(file) {
     reader.readAsDataURL(file);
   });
 }
+
+const responseText = await submit.text();
+if (responseText === "OK") {
+  Swal.fire("Sukses!", "Laporan berhasil dikirim!", "success").then(() => {
+    location.href = location.pathname; // Reset form tanpa ?action
+  });
+} else if (responseText === "DUPLICATE") {
+  Swal.fire("Duplikat!", "Anda sudah mengisi laporan hari ini.", "warning");
+} else if (responseText === "HARI_LIBUR") {
+  Swal.fire("Hari Libur!", "Laporan hanya dapat dikirim pada hari kerja (Senin–Jumat).", "info");
+} else if (responseText === "DI_LUAR_JAM") {
+  Swal.fire("Di Luar Jam!", "Laporan hanya dapat dikirim antara pukul 08.00–22.00.", "info");
+} else {
+  Swal.fire("Gagal!", "Terjadi kesalahan saat mengirim laporan.", "error");
+}
