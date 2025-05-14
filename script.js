@@ -5,6 +5,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupSesiFields();
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+  google.script.run.withSuccessHandler(function(data) {
+    dataPegawai = data;
+    const namaSelect = document.getElementById("nama");
+    data.forEach(row => {
+      const option = document.createElement("option");
+      option.value = row;
+      option.textContent = row;
+      namaSelect.appendChild(option);
+    });
+  }).getNamaPegawai();
+});
+
 async function loadPegawai() {
   const response = await fetch(`${API_URL}?action=getPegawai`);
   const data = await response.json();
