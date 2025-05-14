@@ -60,8 +60,6 @@ document.getElementById("nama").addEventListener("change", async () => {
   }
 });
 
-
-
 function setupSesiFields() {
   const sesiContainer = document.getElementById("sesiContainer");
   for (let i = 1; i <= 7; i++) {
@@ -75,69 +73,6 @@ function setupSesiFields() {
     sesiContainer.appendChild(div);
   }
 }
-
-document.getElementById("laporanForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const nama = document.getElementById("nama").value;
-  if (!nama) {
-    Swal.fire("Error", "Pilih nama terlebih dahulu.", "warning");
-    return;
-  }
-
-  const pegawai = window.dataPegawai.find(row => row[0] === nama);
-  const data = {
-    nama: pegawai[0],
-    nip: pegawai[2],
-    subbid: pegawai[3],
-    status: pegawai[4],
-    golongan: pegawai[5],
-    jabatan: pegawai[6]
-  };
-
-  for (let i = 1; i <= 7; i++) {
-    data[`sesi${i}`] = document.getElementById(`sesi${i}`).value;
-    const fileInput = document.getElementById(`bukti${i}`);
-    if (fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      const base64 = await toBase64(file);
-      const upload = await fetch(`${API_URL}?action=uploadFile`, {
-        method: "POST",
-        body: JSON.stringify({ base64, filename: file.name })
-      });
-      const fileUrl = await upload.text();
-      data[`bukti${i}`] = fileUrl;
-    } else {
-      data[`bukti${i}`] = "";
-    }
-  }
-
-  const submit = await fetch(`${API_URL}?action=submitForm`, {
-    method: "POST",
-    body: JSON.stringify(data)
-  });
-
-  if (submit.ok) {
-    Swal.fire({
-      icon: 'success',
-      title: 'Laporan berhasil dikirim!',
-      showConfirmButton: false,
-      timer: 2000
-    });
-
-    // Reset form manual
-    document.getElementById("laporanForm").reset();
-    document.getElementById("detailPegawai").style.display = "none";
-
-    const sesiFields = document.querySelectorAll("#sesiContainer input[type='text'], #sesiContainer input[type='file']");
-    sesiFields.forEach(input => input.value = "");
-  } else {
-    Swal.fire({
-      icon: 'error',
-      title: 'Gagal mengirim laporan.',
-      text: 'Silakan coba lagi atau hubungi admin.'
-    });
-  }
-});
 
 function toBase64(file) {
   return new Promise((resolve, reject) => {
@@ -166,19 +101,65 @@ document.getElementById("btnSubmit").addEventListener("click", async () => {
   const nama = document.getElementById("nama").value;
   if (!nama) return Swal.fire("Pilih Nama!", "Pilih nama pegawai terlebih dahulu.", "warning");
 
-  // Lanjut proses submit...
+  const pegawai = window.dataPegawai.find(row => row[0] === nama);
+  const data = {
+    nama: pegawai[0],
+    nip: pegawai[2],
+    subbid: pegawai[3],
+    status: pegawai[4],
+    golongan: pegawai[5],
+    jabatan: pegawai[6]
+  };
 
-const responseText = await submit.text();
-if (responseText === "OK") {
-  Swal.fire("Sukses!", "Laporan berhasil dikirim!", "success").then(() => {
-    location.href = location.pathname; // Reset form tanpa ?action
+  let adaIsi = false;
+
+  for (let i = 1; i <= 7; i++) {
+    const uraian = document.getElementById(`sesi${i}`).value;
+    data[`sesi${i}`] = uraian;
+    if (uraian.trim() !== "") adaIsi = true;
+
+    const fileInput = document.getElementById(`bukti${i}`);
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      const base64 = await toBase64(file);
+      const upload = await fetch(`${API_URL}?action=uploadFile`, {
+        method: "POST",
+        body: JSON.stringify({ base64, filename: file.name })
+      });
+      const fileUrl = await upload.text();
+      data[`bukti${i}`] = fileUrl;
+    } else {
+      data[`bukti${i}`] = "";
+    }
+  }
+
+  if (!adaIsi) {
+    return Swal.fire("Kosong!", "Minimal isi satu sesi kegiatan.", "warning");
+  }
+
+  const submit = await fetch(`${API_URL}?action=submitForm`, {
+    method: "POST",
+    body: JSON.stringify(data)
   });
-} else if (responseText === "DUPLICATE") {
-  Swal.fire("Duplikat!", "Anda sudah mengisi laporan hari ini.", "warning");
-} else if (responseText === "HARI_LIBUR") {
-  Swal.fire("Hari Libur!", "Laporan hanya dapat dikirim pada hari kerja (Senin–Jumat).", "info");
-} else if (responseText === "DI_LUAR_JAM") {
-  Swal.fire("Di Luar Jam!", "Laporan hanya dapat dikirim antara pukul 08.00–22.00.", "info");
-} else {
-  Swal.fire("Gagal!", "Terjadi kesalahan saat mengirim laporan.", "error");
-}
+
+  const responseText = await submit.text();
+
+  if (responseText === "OK") {
+    Swal.fire({
+      icon: 'success',
+      title: 'Laporan berhasil dikirim!',
+      showConfirmButton: false,
+      timer: 2000
+    }).then(() => {
+      location.href = location.pathname;
+    });
+  } else if (responseText === "DUPLICATE") {
+    Swal.fire("Duplikat!", "Anda sudah mengisi laporan hari ini.", "warning");
+  } else if (responseText === "HARI_LIBUR") {
+    Swal.fire("Hari Libur!", "Laporan hanya dapat dikirim pada hari kerja (Senin–Jumat).", "info");
+  } else if (responseText === "DI_LUAR_JAM") {
+    Swal.fire("Di Luar Jam!", "Laporan hanya dapat dikirim antara pukul 08.00–22.00.", "info");
+  } else {
+    Swal.fire("Gagal!", "Terjadi kesalahan saat mengirim laporan.", "error");
+  }
+});
