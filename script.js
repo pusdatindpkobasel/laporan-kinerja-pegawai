@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwdeh5AbjveqE1uqNmaZfFur3fglO0srg82nQgIMQf5UDnJHZbSFH3OtEFYtnhbfaCCuQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwuHNUd4ZQIOOwINTyfYlZAtKupe8hz1LWSu3lVoUOzE0sv51zGqNn26WKTG8PFXDNsVw/exec";
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadPegawai();
