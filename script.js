@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwuHNUd4ZQIOOwINTyfYlZAtKupe8hz1LWSu3lVoUOzE0sv51zGqNn26WKTG8PFXDNsVw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyU_i8_6tvnhdvPp-CGpcjUs8Uape1vOFEs836vI4RrHNnQLp30Vt0vcH8y3oSY770oeA/exec";
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadPegawai();
@@ -18,7 +18,7 @@ async function loadPegawai() {
   window.dataPegawai = data;
 }
 
-document.getElementById("nama").addEventListener("change", () => {
+document.getElementById("nama").addEventListener("change", async () => {
   const nama = document.getElementById("nama").value;
   const data = window.dataPegawai.find(row => row[0] === nama);
   if (data) {
@@ -28,10 +28,39 @@ document.getElementById("nama").addEventListener("change", () => {
     document.getElementById("golongan").textContent = data[5];
     document.getElementById("jabatan").textContent = data[6];
     document.getElementById("detailPegawai").style.display = "block";
-  } else {
-    document.getElementById("detailPegawai").style.display = "none";
+
+    const response = await fetch(`${API_URL}?action=checkLaporan&nama=${encodeURIComponent(nama)}`);
+    const result = await response.json();
+
+    if (!result.submitted) {
+      const now = new Date();
+      const cutoff = new Date();
+      cutoff.setHours(22, 0, 0, 0); // jam 22:00
+
+      const timeLeft = cutoff - now;
+      if (timeLeft > 0) {
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+
+        Swal.fire({
+          icon: "info",
+          title: "Belum Mengisi Laporan",
+          html: `Anda belum mengisi laporan hari ini.<br><b>Waktu tersisa:</b> ${hours} jam ${minutes} menit`,
+          confirmButtonText: "Isi Sekarang"
+        });
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Waktu Pengisian Berakhir",
+          text: "Formulir hanya bisa diisi antara pukul 08.00 hingga 22.00 WIB.",
+          confirmButtonText: "OK"
+        });
+      }
+    }
   }
 });
+
+
 
 function setupSesiFields() {
   const sesiContainer = document.getElementById("sesiContainer");
@@ -118,6 +147,26 @@ function toBase64(file) {
     reader.readAsDataURL(file);
   });
 }
+
+document.getElementById("btnSubmit").addEventListener("click", async () => {
+  const now = new Date();
+  const day = now.getDay();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+
+  if (day === 0 || day === 6) {
+    return Swal.fire("Hari Libur!", "Laporan hanya bisa dikirim Senin–Jumat.", "info");
+  }
+
+  const currentMinutes = hours * 60 + minutes;
+  if (currentMinutes < 480 || currentMinutes > 1320) {
+    return Swal.fire("Di Luar Jam!", "Laporan hanya bisa dikirim antara pukul 08.00–22.00.", "info");
+  }
+
+  const nama = document.getElementById("nama").value;
+  if (!nama) return Swal.fire("Pilih Nama!", "Pilih nama pegawai terlebih dahulu.", "warning");
+
+  // Lanjut proses submit...
 
 const responseText = await submit.text();
 if (responseText === "OK") {
