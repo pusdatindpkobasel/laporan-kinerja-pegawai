@@ -35,7 +35,74 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('laporanForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    Swal.fire("Belum Implementasi", "Proses submit belum dihubungkan ke backend.", "info");
+    document.getElementById('laporanForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nama = document.getElementById('nama').value;
+  if (!nama) {
+    Swal.fire("Error", "Silakan pilih nama pegawai.", "error");
+    return;
+  }
+
+  const pegawai = pegawaiData.find(p => p[0] === nama);
+  const payload = {
+    nama: pegawai[0],
+    nip: pegawai[2],
+    subbid: pegawai[3],
+    status: pegawai[4],
+    golongan: pegawai[5],
+    jabatan: pegawai[6]
+  };
+
+  for (let i = 1; i <= 7; i++) {
+    payload[`sesi${i}`] = document.getElementById(`sesi${i}`).value || '';
+    const fileInput = document.getElementById(`bukti${i}`);
+    if (fileInput.files.length > 0) {
+      const base64 = await toBase64(fileInput.files[0]);
+      payload[`bukti${i}`] = {
+        name: fileInput.files[0].name,
+        content: base64
+      };
+    } else {
+      payload[`bukti${i}`] = null;
+    }
+  }
+
+  Swal.fire({
+    title: 'Mengirim...',
+    didOpen: () => Swal.showLoading(),
+    allowOutsideClick: false
+  });
+
+  fetch(`${API_BASE}?action=submitForm`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(res => {
+    Swal.close();
+    if (res.success) {
+      Swal.fire("Berhasil!", "Laporan berhasil dikirim.", "success");
+      document.getElementById('laporanForm').reset();
+      document.getElementById("detailPegawai").style.display = 'none';
+    } else {
+      Swal.fire("Gagal", res.message || "Terjadi kesalahan.", "error");
+    }
+  })
+  .catch(err => {
+    Swal.fire("Error", err.message, "error");
+  });
+});
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
     // Langkah selanjutnya: proses validasi, encode file, kirim via fetch ke GAS
   });
 });
