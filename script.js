@@ -5,19 +5,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupSesiFields();
 });
 
-ddocument.addEventListener("DOMContentLoaded", function() {
-  google.script.run.withSuccessHandler(function(data) {
-    dataPegawai = data; // Data yang diterima adalah array nama pegawai
-    const namaSelect = document.getElementById("nama");
-    data.forEach(function(nama) {
-      const option = document.createElement("option");
-      option.value = nama;
-      option.textContent = nama;
-      namaSelect.appendChild(option);
-    });
-  }).doGetPegawai(); // Menggunakan API untuk mengambil nama pegawai
-});
-
 async function loadPegawai() {
   const response = await fetch(`${API_URL}?action=getPegawai`);
   const data = await response.json();
