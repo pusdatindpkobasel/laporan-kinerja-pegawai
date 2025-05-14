@@ -1,51 +1,56 @@
-const API_BASE = 'https://script.google.com/macros/s/AKfycbypvQcZK4ZOekcuV8C-L5Qmci-RSRuN6jGkITBtU96U0RWa1VoIlayZN0Im1Cm6t6kV/exec';
+const API_URL = "https://script.google.com/macros/s/AKfycbx1MP5LvvNiPsp1zQFkZ75Zm0AZUwZw14D_R8BVDnajTF7SDTCqTenLteoMxfXEreQy/exec";
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const namaSelect = document.getElementById('nama');
-  const pegawaiData = await fetch(`${API_BASE}?action=getPegawai`).then(res => res.json());
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadPegawai();
+  setupSesiFields();
+});
 
-  pegawaiData.forEach(row => {
-    const option = document.createElement('option');
+async function loadPegawai() {
+  const response = await fetch(`${API_URL}?action=getPegawai`);
+  const data = await response.json();
+  const select = document.getElementById("nama");
+  data.forEach(row => {
+    const option = document.createElement("option");
     option.value = row[0];
     option.textContent = row[0];
-    namaSelect.appendChild(option);
+    select.appendChild(option);
   });
+  window.dataPegawai = data;
+}
 
-  namaSelect.addEventListener('change', () => {
-    const selected = pegawaiData.find(p => p[0] === namaSelect.value);
-    if (selected) {
-      document.getElementById('nip').textContent = selected[2];
-      document.getElementById('subbid').textContent = selected[3];
-      document.getElementById('status').textContent = selected[4];
-      document.getElementById('golongan').textContent = selected[5];
-      document.getElementById('jabatan').textContent = selected[6];
-      document.getElementById('detailPegawai').style.display = 'block';
-    }
-  });
+document.getElementById("nama").addEventListener("change", () => {
+  const nama = document.getElementById("nama").value;
+  const data = window.dataPegawai.find(row => row[0] === nama);
+  if (data) {
+    document.getElementById("nip").textContent = data[2];
+    document.getElementById("subbid").textContent = data[3];
+    document.getElementById("status").textContent = data[4];
+    document.getElementById("golongan").textContent = data[5];
+    document.getElementById("jabatan").textContent = data[6];
+    document.getElementById("detailPegawai").style.display = "block";
+  }
+});
 
-  const sesiContainer = document.getElementById('sesiContainer');
+function setupSesiFields() {
+  const sesiContainer = document.getElementById("sesiContainer");
   for (let i = 1; i <= 7; i++) {
-    sesiContainer.innerHTML += `
-      <div class="mb-3">
-        <label class="form-label">Sesi ${i}</label>
-        <input type="text" class="form-control" id="sesi${i}" placeholder="Uraian kegiatan">
-        <input type="file" class="form-control mt-1" id="bukti${i}">
-      </div>`;
+    const div = document.createElement("div");
+    div.className = "mb-3";
+    div.innerHTML = `
+      <label class="form-label">Sesi ${i}</label>
+      <input type="text" id="sesi${i}" class="form-control mb-1" placeholder="Uraian kegiatan">
+      <input type="file" id="bukti${i}" class="form-control" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx">
+    `;
+    sesiContainer.appendChild(div);
   }
+}
 
-  document.getElementById('laporanForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    document.getElementById('laporanForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
+document.getElementById("btnSubmit").addEventListener("click", async () => {
+  const nama = document.getElementById("nama").value;
+  if (!nama) return alert("Pilih nama terlebih dahulu.");
 
-  const nama = document.getElementById('nama').value;
-  if (!nama) {
-    Swal.fire("Error", "Silakan pilih nama pegawai.", "error");
-    return;
-  }
-
-  const pegawai = pegawaiData.find(p => p[0] === nama);
-  const payload = {
+  const pegawai = window.dataPegawai.find(row => row[0] === nama);
+  const data = {
     nama: pegawai[0],
     nip: pegawai[2],
     subbid: pegawai[3],
@@ -55,54 +60,40 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   for (let i = 1; i <= 7; i++) {
-    payload[`sesi${i}`] = document.getElementById(`sesi${i}`).value || '';
+    data[`sesi${i}`] = document.getElementById(`sesi${i}`).value;
     const fileInput = document.getElementById(`bukti${i}`);
     if (fileInput.files.length > 0) {
-      const base64 = await toBase64(fileInput.files[0]);
-      payload[`bukti${i}`] = {
-        name: fileInput.files[0].name,
-        content: base64
-      };
+      const file = fileInput.files[0];
+      const base64 = await toBase64(file);
+      const upload = await fetch(`${API_URL}?action=uploadFile`, {
+        method: "POST",
+        body: JSON.stringify({ base64, filename: file.name })
+      });
+      const fileUrl = await upload.text();
+      data[`bukti${i}`] = fileUrl;
     } else {
-      payload[`bukti${i}`] = null;
+      data[`bukti${i}`] = "";
     }
   }
 
-  Swal.fire({
-    title: 'Mengirim...',
-    didOpen: () => Swal.showLoading(),
-    allowOutsideClick: false
+  const submit = await fetch(`${API_URL}?action=submitForm`, {
+    method: "POST",
+    body: JSON.stringify(data)
   });
 
-  fetch(`${API_BASE}?action=submitForm`, {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  })
-  .then(res => res.json())
-  .then(res => {
-    Swal.close();
-    if (res.success) {
-      Swal.fire("Berhasil!", "Laporan berhasil dikirim.", "success");
-      document.getElementById('laporanForm').reset();
-      document.getElementById("detailPegawai").style.display = 'none';
-    } else {
-      Swal.fire("Gagal", res.message || "Terjadi kesalahan.", "error");
-    }
-  })
-  .catch(err => {
-    Swal.fire("Error", err.message, "error");
-  });
+  if (submit.ok) {
+    alert("Laporan berhasil dikirim!");
+    location.reload();
+  } else {
+    alert("Gagal mengirim laporan.");
+  }
 });
 
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = error => reject(error);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
-
-    // Langkah selanjutnya: proses validasi, encode file, kirim via fetch ke GAS
-  });
-});
