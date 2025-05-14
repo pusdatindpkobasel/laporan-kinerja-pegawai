@@ -1,40 +1,38 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwdeh5AbjveqE1uqNmaZfFur3fglO0srg82nQgIMQf5UDnJHZbSFH3OtEFYtnhbfaCCuQ/exec";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadPegawai();  // Memuat data pegawai
-  setupSesiFields();    // Menyiapkan form untuk sesi
+  await loadPegawai();
+  setupSesiFields();
 });
 
 async function loadPegawai() {
   const response = await fetch(`${API_URL}?action=getPegawai`);
   const data = await response.json();
-  
-  // Mengisi dropdown dengan nama pegawai
   const select = document.getElementById("nama");
   data.forEach(row => {
     const option = document.createElement("option");
-    option.value = row[0];  // Nama pegawai di index pertama
+    option.value = row[0];
     option.textContent = row[0];
     select.appendChild(option);
   });
-  window.dataPegawai = data;  // Menyimpan data pegawai di global window object
+  window.dataPegawai = data;
 }
 
-// Menangani perubahan pada dropdown nama pegawai
 document.getElementById("nama").addEventListener("change", () => {
   const nama = document.getElementById("nama").value;
-  const data = window.dataPegawai.find(row => row[0] === nama);  // Mencari data pegawai berdasarkan nama
+  const data = window.dataPegawai.find(row => row[0] === nama);
   if (data) {
-    document.getElementById("nip").textContent = data[2];       // NIP di kolom ke-3
-    document.getElementById("subbid").textContent = data[3];    // Sub Bidang di kolom ke-4
-    document.getElementById("status").textContent = data[4];    // Status di kolom ke-5
-    document.getElementById("golongan").textContent = data[5];  // Golongan di kolom ke-6
-    document.getElementById("jabatan").textContent = data[6];   // Jabatan di kolom ke-7
-    document.getElementById("detailPegawai").style.display = "block"; // Menampilkan detail pegawai
+    document.getElementById("nip").textContent = data[2];
+    document.getElementById("subbid").textContent = data[3];
+    document.getElementById("status").textContent = data[4];
+    document.getElementById("golongan").textContent = data[5];
+    document.getElementById("jabatan").textContent = data[6];
+    document.getElementById("detailPegawai").style.display = "block";
+  } else {
+    document.getElementById("detailPegawai").style.display = "none";
   }
 });
 
-// Menyiapkan input untuk sesi 1-7
 function setupSesiFields() {
   const sesiContainer = document.getElementById("sesiContainer");
   for (let i = 1; i <= 7; i++) {
@@ -49,10 +47,13 @@ function setupSesiFields() {
   }
 }
 
-// Menangani submit form
-document.getElementById("btnSubmit").addEventListener("click", async () => {
+document.getElementById("laporanForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
   const nama = document.getElementById("nama").value;
-  if (!nama) return alert("Pilih nama terlebih dahulu.");
+  if (!nama) {
+    Swal.fire("Error", "Pilih nama terlebih dahulu.", "warning");
+    return;
+  }
 
   const pegawai = window.dataPegawai.find(row => row[0] === nama);
   const data = {
@@ -64,40 +65,51 @@ document.getElementById("btnSubmit").addEventListener("click", async () => {
     jabatan: pegawai[6]
   };
 
-  // Menangani input sesi dan bukti (file)
   for (let i = 1; i <= 7; i++) {
     data[`sesi${i}`] = document.getElementById(`sesi${i}`).value;
     const fileInput = document.getElementById(`bukti${i}`);
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
-      const base64 = await toBase64(file); // Mengubah file ke Base64
+      const base64 = await toBase64(file);
       const upload = await fetch(`${API_URL}?action=uploadFile`, {
         method: "POST",
         body: JSON.stringify({ base64, filename: file.name })
       });
       const fileUrl = await upload.text();
-      data[`bukti${i}`] = fileUrl;  // Menyimpan URL file upload
+      data[`bukti${i}`] = fileUrl;
     } else {
       data[`bukti${i}`] = "";
     }
   }
 
-  // Mengirim data form ke server
   const submit = await fetch(`${API_URL}?action=submitForm`, {
     method: "POST",
     body: JSON.stringify(data)
   });
 
-  // Menangani respon dari server
   if (submit.ok) {
-    alert("Laporan berhasil dikirim!");
-    location.reload();
+    Swal.fire({
+      icon: 'success',
+      title: 'Laporan berhasil dikirim!',
+      showConfirmButton: false,
+      timer: 2000
+    });
+
+    // Reset form manual
+    document.getElementById("laporanForm").reset();
+    document.getElementById("detailPegawai").style.display = "none";
+
+    const sesiFields = document.querySelectorAll("#sesiContainer input[type='text'], #sesiContainer input[type='file']");
+    sesiFields.forEach(input => input.value = "");
   } else {
-    alert("Gagal mengirim laporan.");
+    Swal.fire({
+      icon: 'error',
+      title: 'Gagal mengirim laporan.',
+      text: 'Silakan coba lagi atau hubungi admin.'
+    });
   }
 });
 
-// Fungsi untuk mengubah file menjadi Base64
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
