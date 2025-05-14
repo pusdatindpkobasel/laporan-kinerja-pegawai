@@ -1,4 +1,4 @@
-const API_BASE = 'https://script.google.com/macros/s/PASTE_YOUR_DEPLOYED_URL/exec';
+const API_BASE = 'https://script.google.com/macros/s/AKfycbypvQcZK4ZOekcuV8C-L5Qmci-RSRuN6jGkITBtU96U0RWa1VoIlayZN0Im1Cm6t6kV/exec';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const namaSelect = document.getElementById('nama');
