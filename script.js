@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbzfgAqb3G9XQ4ye3hfp8q_ionpXG8OWj1caXK5HVg2g8uZaY9u3JJCGX_8msYFlN22M/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzqCB1UjuTaEwS8mJeIq8BcRIX5Y4kfCB5jQs73G52_VmU0OBBmsJ8xsWXKvPCPiZqi/exec';
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch(`${API_URL}?action=getPegawai`)
