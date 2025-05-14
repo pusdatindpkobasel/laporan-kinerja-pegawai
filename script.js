@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbx1MP5LvvNiPsp1zQFkZ75Zm0AZUwZw14D_R8BVDnajTF7SDTCqTenLteoMxfXEreQy/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwAYyVCPVfvzNnWxQaXntzFnyzmgKQvBm7Uqr426g5Dc-La9LPLTLP6Omw2XXUnqKUE/exec";
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadPegawai();  // Memuat data pegawai
