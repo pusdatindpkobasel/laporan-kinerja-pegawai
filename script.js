@@ -1,34 +1,23 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbx1MP5LvvNiPsp1zQFkZ75Zm0AZUwZw14D_R8BVDnajTF7SDTCqTenLteoMxfXEreQy/exec";
 
-async function loadPegawai() {
-  try {
-    const res = await fetch(`${API_URL}?action=getPegawai`);
-    if (!res.ok) throw new Error("HTTP error " + res.status);
-    const data = await res.json();
-    console.log("Data pegawai:", data);
-    return data;
-  } catch (error) {
-    console.error("Gagal load data pegawai:", error);
-    throw error;
-  }
-}
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadPegawai();
+  setupSesiFields();
+});
 
 // Contoh panggil loadPegawai dan tampilkan di dropdown
-async function init() {
-  try {
-    const pegawaiList = await loadPegawai();
-    const select = document.getElementById("selectPegawai");
-    pegawaiList.forEach(row => {
-      const option = document.createElement("option");
-      option.value = row[0]; // asumsikan nama pegawai di kolom 0
-      option.textContent = row[0];
-      select.appendChild(option);
-    });
-  } catch {
-    alert("Gagal memuat data pegawai. Silakan coba lagi.");
-  }
+async function loadPegawai() {
+  const response = await fetch(`${API_URL}?action=getPegawai`);
+  const data = await response.json();
+  const select = document.getElementById("nama");
+  data.forEach(row => {
+    const option = document.createElement("option");
+    option.value = row[0];
+    option.textContent = row[0];
+    select.appendChild(option);
+  });
+  window.dataPegawai = data;
 }
-
 document.addEventListener("DOMContentLoaded", init);
 
 // Fungsi validasi PIN
