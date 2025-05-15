@@ -14,12 +14,20 @@
     <p class="text-center text-muted">
       Isi laporan Anda hanya sekali setiap hari kerja (Senin–Jumat) antara pukul 08.00–22.00.
     </p>
-<div id="pinOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-white d-flex flex-column justify-content-center align-items-center" style="z-index: 9999;">
-  <h4>Masukkan PIN Akses</h4>
-  <input type="password" id="accessPin" class="form-control w-50 my-2" placeholder="PIN Anda">
-  <button class="btn btn-primary" onclick="validateAccessPin()">Masuk</button>
-  <p id="pinError" class="text-danger mt-2" style="display: none;">PIN salah. Silakan coba lagi.</p>
+    
+<div id="pinOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-light d-flex justify-content-center align-items-center" style="z-index: 9999;">
+  <div class="card p-4 shadow" style="min-width: 300px;">
+    <h5 class="card-title mb-3 text-center">Masukkan PIN Akses</h5>
+    <div class="mb-3">
+      <input type="password" id="accessPin" class="form-control" placeholder="PIN Anda">
+    </div>
+    <div class="d-grid">
+      <button class="btn btn-primary" onclick="validateAccessPin()">Masuk</button>
+    </div>
+    <p id="pinError" class="text-danger mt-2 text-center" style="display: none;">PIN salah. Silakan coba lagi.</p>
+  </div>
 </div>
+    
     <form id="laporanForm">
       <div class="mb-3">
         <label for="nama" class="form-label">Nama Pegawai</label>
