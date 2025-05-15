@@ -1,5 +1,7 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbyU_i8_6tvnhdvPp-CGpcjUs8Uape1vOFEs836vI4RrHNnQLp30Vt0vcH8y3oSY770oeA/exec";
-
+document.addEventListener("DOMContentLoaded", function () {
+  document.body.classList.add("modal-open");
+});
 document.addEventListener("DOMContentLoaded", async () => {
   await loadPegawai();
   setupSesiFields();
@@ -169,7 +171,7 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
 function validateAccessPin() {
   const allowedPins = ["1234", "4567", "8901"]; // daftar PIN
   const inputPin = document.getElementById("accessPin").value;
-
+  document.body.classList.remove("modal-open");
   if (allowedPins.includes(inputPin)) {
     document.getElementById("pinOverlay").style.display = "none"; // ini penting
   } else {
