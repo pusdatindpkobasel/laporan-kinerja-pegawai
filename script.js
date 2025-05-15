@@ -40,6 +40,10 @@ function validateAccessPin() {
     document.getElementById("pinError").style.display = "block";
   }
 }
+document.getElementById("accessPin").addEventListener("input", function () {
+  document.getElementById("pinError").style.display = "none";
+});
+
 
 // Load nama pegawai ke dropdown
 async function loadPegawai() {
