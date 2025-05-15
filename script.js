@@ -166,3 +166,14 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
     Swal.fire("Gagal!", "Terjadi kesalahan saat mengirim laporan.", "error");
   }
 });
+function validateAccessPin() {
+  const allowedPins = ["1234", "4567", "8901"]; // ganti dengan PIN yang kamu pakai
+  const inputPin = document.getElementById("accessPin").value;
+
+  if (allowedPins.includes(inputPin)) {
+    document.getElementById("pinOverlay").style.display = "none";
+  } else {
+    document.getElementById("pinError").style.display = "block";
+  }
+}
+
