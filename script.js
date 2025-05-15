@@ -83,7 +83,7 @@ function toBase64(file) {
   });
 }
 
-document.getElementById("btnSubmit").addEventListener("click", async () => {
+document.getElementById("btnSubmit").addEventListener("click", async (event) => {
   event.preventDefault();
   const now = new Date();
   const day = now.getDay();
