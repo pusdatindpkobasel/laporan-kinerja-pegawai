@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbxmcKOoipdBgqEUP4SIYy1dYM9RwJM2ienC0c6_orbbykUo6oY0p8gB-gyGIuStb8ZeZQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzL84750pzh0RyNoM_UjHrcBauRIhsmuqRmiwnN2sIZbzwAZDv5rGA-ydqWwO9Uzt9R2Q/exec";
 let dataPegawai = [];
 let sesiStatus = Array(7).fill(false); // Status tiap sesi
 let currentUser = null;
