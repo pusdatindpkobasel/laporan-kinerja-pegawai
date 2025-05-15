@@ -21,6 +21,31 @@ if (pinValid === "true") {
   setupSesiFields();
 });
 
+async function loadPegawai() {
+  try {
+    const res = await fetch(`${API_URL}?action=getPegawai`);
+    const data = await res.json();
+
+    if (Array.isArray(data)) {
+      window.dataPegawai = data;
+      console.log("Data Pegawai:", window.dataPegawai);
+      
+      const select = document.getElementById("nama");
+      select.innerHTML = `<option value="">-- Pilih Pegawai --</option>`;
+      data.forEach(row => {
+        const option = document.createElement("option");
+        option.value = row[0]; // Nama Pegawai
+        option.textContent = row[0];
+        select.appendChild(option);
+      });
+    } else {
+      console.error("Data pegawai tidak valid:", data);
+    }
+  } catch (error) {
+    console.error("Gagal memuat data pegawai:", error);
+    Swal.fire("Gagal!", "Tidak bisa memuat data pegawai. Periksa koneksi atau backend.", "error");
+  }
+}
 
 // Fungsi validasi PIN
 function validateAccessPin() {
