@@ -4,19 +4,22 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyU_i8_6tvnhdvPp-CGpcjU
 window.dataPegawai = [];
 
 document.addEventListener("DOMContentLoaded", async function () {
-  // Tampilkan overlay hanya jika belum ditutup
   const overlay = document.getElementById("pinOverlay");
+
+  // Aktifkan overlay & modal-open hanya jika overlay masih terlihat
   if (overlay && overlay.style.display !== "none") {
     document.body.classList.add("modal-open");
+    document.body.style.overflow = "hidden"; // untuk mencegah scroll
   }
 
   await loadPegawai();
   setupSesiFields();
 });
 
+
 // Fungsi validasi PIN
 function validateAccessPin() {
-  const allowedPins = ["1234", "4567", "8901"]; // Ganti PIN sesuai kebutuhan
+  const allowedPins = ["1234", "4567", "8901"]; // Ganti sesuai kebutuhan
   const inputPin = document.getElementById("accessPin").value;
 
   if (allowedPins.includes(inputPin)) {
@@ -26,8 +29,12 @@ function validateAccessPin() {
       text: 'Silakan lanjut mengisi laporan.',
       confirmButtonText: 'Lanjut'
     }).then(() => {
-      document.getElementById("pinOverlay").style.display = "none";
+      const overlay = document.getElementById("pinOverlay");
+      overlay.style.display = "none";
+      overlay.classList.add("d-none"); // tambahan untuk Bootstrap
+
       document.body.classList.remove("modal-open");
+      document.body.style.overflow = ""; // pastikan scroll normal kembali
     });
   } else {
     document.getElementById("pinError").style.display = "block";
