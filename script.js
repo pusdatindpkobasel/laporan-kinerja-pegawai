@@ -147,12 +147,14 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
 
   if (responseText === "OK") {
     Swal.fire({
-      icon: 'success',
-      title: 'Laporan berhasil dikirim!',
-      showConfirmButton: false,
-      timer: 2000
-    }).then(() => {
-      location.href = location.pathname;
+    icon: 'success',
+    title: 'Laporan berhasil dikirim!',
+    showConfirmButton: false,
+    timer: 2000
+  }).then(() => {
+    document.getElementById("laporanForm").reset();
+    document.getElementById("detailPegawai").style.display = "none";
+    location.href = location.pathname;
     });
   } else if (responseText === "DUPLICATE") {
     Swal.fire("Duplikat!", "Anda sudah mengisi laporan hari ini.", "warning");
