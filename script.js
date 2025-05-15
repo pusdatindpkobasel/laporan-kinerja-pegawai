@@ -57,19 +57,19 @@ function login() {
 
   currentUser = {
     nama: row[0],
-    nip: row[2],
-    subbid: row[3],
-    status: row[4],
-    golongan: row[5],
-    jabatan: row[6]
+    nip: row[1],
+    subbid: row[2],
+    status: row[3],
+    golongan: row[4],
+    jabatan: row[5]
   };
 
   // Tampilkan identitas
-  document.getElementById("nip").textContent = row[2];
-  document.getElementById("subbid").textContent = row[3];
-  document.getElementById("status").textContent = row[4];
-  document.getElementById("gol").textContent = row[5];
-  document.getElementById("jabatan").textContent = row[6];
+  document.getElementById("nip").textContent = row[1];
+  document.getElementById("subbid").textContent = row[2];
+  document.getElementById("status").textContent = row[3];
+  document.getElementById("gol").textContent = row[4];
+  document.getElementById("jabatan").textContent = row[5];
 
   document.getElementById("form-wrapper").style.display = "block";
   checkLaporanSebelumnya();
@@ -188,8 +188,3 @@ function markSesiSubmitted(i) {
   btn.disabled = true;
   sesiStatus[i - 1] = true;
 }
-
-function showLoading(show = true) {
-  document.getElementById("loadingOverlay").style.display = show ? "flex" : "none";
-}
-
