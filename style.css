@@ -1,8 +1,9 @@
 body {
   background-color: #f8f9fa;
 }
+
 body.modal-open {
-  overflow: hidden;
+  overflow: hidden !important;
 }
 .container {
   max-width: 800px;
