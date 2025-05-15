@@ -7,41 +7,39 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-  @media (max-width: 576px) {
-    .login-dashboard-row {
-      flex-direction: column;
-      align-items: stretch;
+    .card-sesi {
+      margin-bottom: 1rem;
     }
-    .login-dashboard-row > * {
-      width: 100% !important;
+    @media (min-width: 768px) {
+      .login-dashboard-row {
+        flex-direction: row;
+        align-items: flex-end;
+      }
     }
-  }
-</style>
-
+    @media (max-width: 767.98px) {
+      .login-dashboard-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
 <div class="container py-5">
-  <!-- Header dengan Judul dan Deskripsi Panduan -->
-  <header class="text-center mb-5">
-    <h1 class="display-4">Laporan Kinerja Pegawai</h1>
-    <p class="lead">
-      Sistem laporan harian untuk mencatat aktivitas pegawai setiap hari. Pilih nama, masukkan PIN, dan kirimkan laporan sesi Anda dengan mengisi uraian pekerjaan dan mengunggah bukti dukung.
-    </p>
-  </header>
-
-  <div class="container my-4">
+    <!-- Header dengan Judul dan Deskripsi Panduan -->
+    <header class="text-center mb-5">
+      <h1 class="display-4">Laporan Kinerja Pegawai</h1>
+      <p class="lead">Sistem laporan harian untuk mencatat aktivitas pegawai setiap hari. Pilih nama, masukkan PIN, dan kirimkan laporan sesi Anda dengan mengisi uraian pekerjaan dan mengunggah bukti dukung.</p>
+    </header>
+<div class="container my-4">
     <!-- Login + Dashboard Row -->
     <div class="d-flex login-dashboard-row flex-wrap gap-2 justify-content-between mb-4">
-      <form onsubmit="login(); return false;" class="d-flex flex-wrap gap-2">
+      <div class="d-flex flex-wrap gap-2">
         <select id="nama" class="form-select" style="min-width: 200px" required></select>
-        <input type="password" id="pin" class="form-control" placeholder="PIN" style="min-width: 100px" required />
-        <button type="submit" class="btn btn-primary">Login</button>
-      </form>
-      <a href="https://lookerstudio.google.com/reporting/xyz" target="_blank" class="btn btn-outline-secondary w-100 w-sm-auto">
-        📊 Dashboard
-      </a>
+        <input type="password" id="pin" class="form-control" placeholder="PIN" style="min-width: 100px" required/>
+        <button class="btn btn-primary" onclick="login()">Login</button>
+      </div>
+      <a href="https://lookerstudio.google.com/reporting/xyz" target="_blank" class="btn btn-outline-secondary">📊 Dashboard</a>
     </div>
-  </div>
-</div>
-
 
     <!-- Form Wrapper -->
     <div id="form-wrapper" style="display:none;">
