@@ -30,16 +30,25 @@
       <h1 class="display-4">Laporan Kinerja Pegawai</h1>
       <p class="lead">Sistem laporan harian untuk mencatat aktivitas pegawai setiap hari. Pilih nama, masukkan PIN, dan kirimkan laporan sesi Anda dengan mengisi uraian pekerjaan dan mengunggah bukti dukung.</p>
     </header>
-  <div class="container my-4">
-    <!-- Login + Dashboard Row -->
-    <div class="d-flex login-dashboard-row flex-wrap gap-2 justify-content-between mb-4">
-      <div class="d-flex flex-wrap gap-2">
-        <select id="nama" class="form-select" style="min-width: 200px" required></select>
-        <input type="password" id="pin" class="form-control" placeholder="PIN" style="min-width: 100px" required/>
-        <button class="btn btn-primary" onclick="login()">Login</button>
-      </div>
-      <a href="https://lookerstudio.google.com/reporting/xyz" target="_blank" class="btn btn-outline-secondary">📊 Dashboard</a>
+<div class="container my-4">
+  <!-- Login + Dashboard Section -->
+  <div class="row align-items-center g-2 mb-4">
+    <!-- Login Inputs -->
+    <div class="col-12 col-md-auto d-flex flex-wrap gap-2">
+      <select id="nama" class="form-select" style="min-width: 200px" required></select>
+      <input type="password" id="pin" class="form-control" placeholder="PIN" style="min-width: 100px" required />
+      <button class="btn btn-primary" onclick="login()">Login</button>
     </div>
+
+    <!-- Dashboard Button -->
+    <div class="col-12 col-md-auto">
+      <a href="https://lookerstudio.google.com/reporting/xyz" target="_blank" class="btn btn-outline-secondary w-100 w-md-auto">
+        📊 Dashboard
+      </a>
+    </div>
+  </div>
+</div>
+
 
     <!-- Form Wrapper -->
     <div id="form-wrapper" style="display:none;">
