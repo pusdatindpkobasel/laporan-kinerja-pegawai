@@ -226,3 +226,7 @@ console.log("Response from server:", responseText); // Tambahkan ini
     Swal.fire("Gagal!", "Terjadi kesalahan saat mengirim laporan.", "error");
   }
 });
+
+document.getElementById("loadingSpinner").style.display = "block";
+// await proses
+document.getElementById("loadingSpinner").style.display = "none";
