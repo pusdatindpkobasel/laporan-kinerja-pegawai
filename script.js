@@ -1,190 +1,124 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbxRZ2F0fZ0bRu8Lk6DGstJYM5YHDJPzZ57D_3MQfqsZsWN7fR3cJ0e9o_edtExI9ACsWg/exec";
-let dataPegawai = [];
-let sesiStatus = Array(7).fill(false); // Status tiap sesi
+
+let pegawai = [];
 let currentUser = null;
+let laporanHariIni = {};
+let sudahKirimSesi = {};
 
-// Load data pegawai saat awal
-window.onload = async () => {
-  try {
-    await loadPegawai();
-  } catch (e) {
-    console.error("Gagal load data pegawai:", e);
-    Swal.fire("Gagal!", "Tidak bisa memuat data pegawai. Periksa koneksi atau backend.", "error");
+document.addEventListener("DOMContentLoaded", () => {
+  loadPegawai();
+  document.getElementById("loginForm").addEventListener("submit", handleLogin);
+  for (let i = 1; i <= 7; i++) {
+    document.getElementById(`form-sesi${i}`).addEventListener("submit", e => handleSubmitSesi(e, i));
   }
-};
+});
 
-// Ambil data pegawai dari backend
-async function loadPegawai() {
-  return new Promise((resolve, reject) => {
-    const callbackName = "cb_" + Date.now();
-    window[callbackName] = (data) => {
-      dataPegawai = data;
-      const select = document.getElementById("nama");
-      select.innerHTML = `<option value="">-- Pilih --</option>`;
-      data.forEach(row => {
-        select.innerHTML += `<option value="${row[0]}">${row[0]}</option>`;
-      });
-      delete window[callbackName];
-      resolve();
-    };
+function loadPegawai() {
+  const script = document.createElement("script");
+  script.src = `${API_URL}?action=getPegawai&callback=renderPegawai`;
+  document.body.appendChild(script);
+}
 
-    const script = document.createElement('script');
-    script.src = `${API_URL}?action=getPegawai&callback=${callbackName}`;
-    script.onerror = () => {
-      reject(new Error("Gagal load data pegawai (script error)"));
-      delete window[callbackName];
-      script.remove();
-    };
-    document.body.appendChild(script);
+function renderPegawai(data) {
+  pegawai = data;
+  const select = document.getElementById("nama");
+  select.innerHTML = '<option value="">Pilih Nama</option>';
+  data.forEach(row => {
+    const opt = document.createElement("option");
+    opt.value = row[0];
+    opt.textContent = row[0];
+    select.appendChild(opt);
   });
 }
 
-// Login berdasarkan nama + PIN
-function login() {
+function handleLogin(e) {
+  e.preventDefault();
   const nama = document.getElementById("nama").value;
-  const pin = document.getElementById("pin").value.trim();
-
-  if (!nama || !pin) {
-    Swal.fire("Lengkapi", "Nama dan PIN wajib diisi", "warning");
-    return;
-  }
-
-  const row = dataPegawai.find(r => r[0] === nama);
-  if (!row || row[7] !== pin) {
-    Swal.fire("Gagal", "PIN salah atau tidak ditemukan", "error");
-    return;
-  }
+  const pin = document.getElementById("pin").value;
+  const peg = pegawai.find(p => p[0] === nama && p[7] === pin);
+  if (!peg) return alert("PIN salah");
 
   currentUser = {
-    nama: row[0],
-    nip: row[1],
-    subbid: row[2],
-    status: row[3],
-    golongan: row[4],
-    jabatan: row[5]
+    nama: peg[0], nip: peg[1], subbid: peg[2], status: peg[3],
+    golongan: peg[4], jabatan: peg[5]
   };
 
-  // Tampilkan identitas
-  document.getElementById("nip").textContent = row[1];
-  document.getElementById("subbid").textContent = row[2];
-  document.getElementById("status").textContent = row[3];
-  document.getElementById("gol").textContent = row[4];
-  document.getElementById("jabatan").textContent = row[5];
+  document.getElementById("loginArea").style.display = "none";
+  document.getElementById("formArea").style.display = "block";
 
-  document.getElementById("form-wrapper").style.display = "block";
-  checkLaporanSebelumnya();
+  cekLaporanHariIni(nama);
 }
 
-// Cek laporan yang sudah pernah diisi hari ini
-async function checkLaporanSebelumnya() {
-  const res = await fetch(`${API_URL}?action=checkLaporan&nama=${encodeURIComponent(currentUser.nama)}`);
-  const json = await res.json();
-  const formContainer = document.getElementById("sesi-form");
-  formContainer.innerHTML = "";
+function cekLaporanHariIni(nama) {
+  fetch(`${API_URL}?action=checkLaporan&nama=${encodeURIComponent(nama)}`)
+    .then(res => res.json())
+    .then(data => {
+      // TODO: Jika ingin pre-load data sesi sebelumnya bisa dilanjutkan di sini
+    });
+}
 
-  for (let i = 1; i <= 7; i++) {
-    const sesi = document.createElement("div");
-    sesi.className = "card mb-3";
-    sesi.innerHTML = `
-      <div class="card-body">
-        <h5 class="card-title">Sesi ${i}</h5>
-        <div class="mb-2">
-          <label>Nama Pekerjaan</label>
-          <input type="text" id="sesi${i}_text" class="form-control">
-        </div>
-        <div class="mb-2">
-          <label>Upload Bukti</label>
-          <input type="file" id="sesi${i}_file" class="form-control">
-        </div>
-        <button class="btn btn-success" id="btn_sesi${i}" onclick="submitSesi(${i})">Submit</button>
-        <span id="loading_sesi${i}" class="spinner" style="display:none"></span>
-      </div>
-    `;
-    formContainer.appendChild(sesi);
-  }
+async function handleSubmitSesi(e, sesi) {
+  e.preventDefault();
+  const input = document.getElementById(`input-sesi${sesi}`);
+  const file = document.getElementById(`file-sesi${sesi}`);
+  const pekerjaan = input.value.trim();
+  const bukti = file.files[0];
 
-  if (json.submitted) {
-    // disable semua tombol submit
-    for (let i = 1; i <= 7; i++) {
-      const row = dataPegawai.find(r => r[0] === currentUser.nama);
-      if (row) markSesiSubmitted(i);
-    }
+  if (!pekerjaan) return alert("Isi nama pekerjaan");
+  if (!bukti) return alert("Upload bukti dukung");
+
+  showLoading(true);
+
+  const base64 = await fileToBase64(bukti);
+  const filename = `${currentUser.nama}-Sesi${sesi}-${new Date().toISOString().split("T")[0]}-${bukti.name}`;
+
+  const uploadRes = await fetch(API_URL + "?action=uploadFile", {
+    method: "POST",
+    body: JSON.stringify({ filename, base64 })
+  });
+
+  const fileUrl = await uploadRes.text();
+
+  const payload = {
+    nama: currentUser.nama,
+    nip: currentUser.nip,
+    subbid: currentUser.subbid,
+    status: currentUser.status,
+    golongan: currentUser.golongan,
+    jabatan: currentUser.jabatan,
+  };
+  payload[`sesi${sesi}`] = pekerjaan;
+  payload[`bukti${sesi}`] = fileUrl;
+
+  const submitRes = await fetch(API_URL + "?action=submitForm", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+
+  const text = await submitRes.text();
+  showLoading(false);
+
+  if (text === "OK") {
+    document.getElementById(`form-sesi${sesi}`).innerHTML =
+      `<div class="alert alert-success text-center">✔️ Terkirim</div>`;
+  } else if (text === "DI_LUAR_JAM") {
+    alert("Pengisian hanya diizinkan antara pukul 08:00 s/d 22:00");
+  } else if (text === "HARI_LIBUR") {
+    alert("Pengisian hanya di hari kerja (Senin s/d Jumat)");
+  } else {
+    alert("Gagal kirim laporan: " + text);
   }
 }
 
-// Submit sesi tertentu
-async function submitSesi(i) {
-  const text = document.getElementById(`sesi${i}_text`).value.trim();
-  const fileInput = document.getElementById(`sesi${i}_file`);
-  const button = document.getElementById(`btn_sesi${i}`);
-  const loading = document.getElementById(`loading_sesi${i}`);
-
-  if (!text || fileInput.files.length === 0) {
-    Swal.fire("Lengkapi", "Isi nama pekerjaan dan upload bukti untuk sesi " + i, "warning");
-    return;
-  }
-
-  button.disabled = true;
-  loading.style.display = "inline-block";
-
-  try {
-    // Upload file ke Drive
-    const file = fileInput.files[0];
+function fileToBase64(file) {
+  return new Promise(resolve => {
     const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result;
-      const uploadRes = await fetch(API_URL + "?action=uploadFile", {
-        method: "POST",
-        body: JSON.stringify({
-          filename: `${currentUser.nama}_Sesi${i}_${new Date().toISOString()}`,
-          base64
-        }),
-        headers: { "Content-Type": "application/json" }
-      });
-      const fileUrl = await uploadRes.text();
-
-      // Submit data ke spreadsheet
-      const payload = {
-        nama: currentUser.nama,
-        nip: currentUser.nip,
-        subbid: currentUser.subbid,
-        status: currentUser.status,
-        golongan: currentUser.golongan,
-        jabatan: currentUser.jabatan,
-        [`sesi${i}`]: text,
-        [`bukti${i}`]: fileUrl
-      };
-
-      const res = await fetch(API_URL + "?action=submitForm", {
-        method: "POST",
-        body: JSON.stringify(payload),
-        headers: { "Content-Type": "application/json" }
-      });
-
-      const result = await res.text();
-      if (result === "OK" || result === "DUPLICATE") {
-        markSesiSubmitted(i);
-        Swal.fire("Berhasil", "Sesi " + i + " telah disimpan", "success");
-      } else if (result === "HARI_LIBUR") {
-        Swal.fire("Hari Libur", "Laporan hanya bisa diisi hari kerja (Senin–Jumat)", "info");
-      } else if (result === "DI_LUAR_JAM") {
-        Swal.fire("Di Luar Jam", "Pengisian hanya bisa antara jam 08.00–22.00", "info");
-      } else {
-        throw new Error(result);
-      }
-    };
+    reader.onload = () => resolve(reader.result);
     reader.readAsDataURL(file);
-  } catch (err) {
-    console.error("Submit error:", err);
-    Swal.fire("Gagal", "Terjadi kesalahan saat menyimpan sesi", "error");
-  } finally {
-    loading.style.display = "none";
-  }
+  });
 }
 
-function markSesiSubmitted(i) {
-  const btn = document.getElementById(`btn_sesi${i}`);
-  btn.innerHTML = "✔️ Sudah Disubmit";
-  btn.disabled = true;
-  sesiStatus[i - 1] = true;
+function showLoading(show) {
+  const loading = document.getElementById("loading");
+  loading.style.display = show ? "block" : "none";
 }
