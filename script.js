@@ -230,3 +230,6 @@ console.log("Response from server:", responseText); // Tambahkan ini
 document.getElementById("loadingSpinner").style.display = "block";
 // await proses
 document.getElementById("loadingSpinner").style.display = "none";
+
+window.scrollTo({ top: 0, behavior: 'smooth' });
+
