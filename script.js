@@ -114,6 +114,7 @@ async function checkLaporanSebelumnya() {
 
 // Submit sesi tertentu
 async function submitSesi(i) {
+  window.submitSesi = submitSesi;
   const text = document.getElementById(`sesi${i}_text`).value.trim();
   const fileInput = document.getElementById(`sesi${i}_file`);
   const button = document.getElementById(`btn_sesi${i}`);
@@ -131,6 +132,11 @@ async function submitSesi(i) {
     // Upload file ke Drive
     const file = fileInput.files[0];
     const reader = new FileReader();
+    reader.onerror = () => {
+  Swal.fire("Gagal", "Gagal membaca file bukti", "error");
+  loading.style.display = "none";
+  button.disabled = false;
+};
     reader.onloadend = async () => {
       const base64 = reader.result;
       const uploadRes = await fetch(API_URL + "?action=uploadFile", {
