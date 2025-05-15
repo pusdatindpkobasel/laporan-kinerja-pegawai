@@ -167,13 +167,14 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
   }
 });
 function validateAccessPin() {
-  const allowedPins = ["@dpko2025", "4567", "8901"]; // ganti dengan PIN yang kamu pakai
+  const allowedPins = ["1234", "4567", "8901"]; // daftar PIN
   const inputPin = document.getElementById("accessPin").value;
 
   if (allowedPins.includes(inputPin)) {
-    document.getElementById("pinOverlay").style.display = "none";
+    document.getElementById("pinOverlay").style.display = "none"; // ini penting
   } else {
     document.getElementById("pinError").style.display = "block";
   }
 }
+
 
