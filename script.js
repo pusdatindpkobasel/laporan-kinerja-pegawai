@@ -3,9 +3,13 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyU_i8_6tvnhdvPp-CGpcjU
 // Global variabel untuk menyimpan data pegawai
 window.dataPegawai = [];
 
-// Saat halaman dimuat
-document.addEventListener("DOMContentLoaded", async () => {
-  document.body.classList.add("modal-open");
+document.addEventListener("DOMContentLoaded", async function () {
+  // Tampilkan overlay hanya jika belum ditutup
+  const overlay = document.getElementById("pinOverlay");
+  if (overlay && overlay.style.display !== "none") {
+    document.body.classList.add("modal-open");
+  }
+
   await loadPegawai();
   setupSesiFields();
 });
