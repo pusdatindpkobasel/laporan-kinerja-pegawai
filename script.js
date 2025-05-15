@@ -6,55 +6,62 @@ window.dataPegawai = [];
 document.addEventListener("DOMContentLoaded", async function () {
   const overlay = document.getElementById("pinOverlay");
 
-  // Aktifkan overlay & modal-open hanya jika overlay masih terlihat
-
   const pinValid = localStorage.getItem("pinValid");
-if (pinValid === "true") {
-  document.getElementById("pinOverlay").style.display = "none";
-  document.body.classList.remove("modal-open");
-} else {
-  document.body.classList.add("modal-open");
-  document.body.style.overflow = "hidden";
-}
+  if (pinValid === "true") {
+    overlay.style.display = "none";
+    document.body.classList.remove("modal-open");
+  } else {
+    document.body.classList.add("modal-open");
+    document.body.style.overflow = "hidden";
+  }
 
-  await loadPegawai();
+  try {
+    await loadPegawai();
+  } catch (e) {
+    console.error("Gagal load data pegawai:", e);
+    Swal.fire("Gagal!", "Tidak bisa memuat data pegawai. Periksa koneksi atau backend.", "error");
+  }
+
   setupSesiFields();
 });
 
-async function loadPegawai() {
-  try {
-    Swal.fire({
-      title: 'Memuat data pegawai...',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
+
+function loadPegawai() {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'callbackPegawai_' + Date.now();
+
+    window[callbackName] = (data) => {
+      if (Array.isArray(data)) {
+        window.dataPegawai = data;
+
+        const select = document.getElementById("nama");
+        select.innerHTML = `<option value="">-- Pilih Pegawai --</option>`;
+        data.forEach(row => {
+          const option = document.createElement("option");
+          option.value = row[0]; // Nama Pegawai
+          option.textContent = row[0];
+          select.appendChild(option);
+        });
+
+        resolve(data);
+      } else {
+        reject(new Error("Data pegawai tidak valid"));
       }
-    });
+      // Clean up
+      script.remove();
+      delete window[callbackName];
+    };
 
-    const res = await fetch(`${API_URL}?action=getPegawai`);
-    const data = await res.json();
-    Swal.close(); // Tutup loading
+    const script = document.createElement('script');
+    script.src = `${API_URL}?action=getPegawai&callback=${callbackName}`;
+    script.onerror = () => {
+      reject(new Error("Gagal load data pegawai (script error)"));
+      delete window[callbackName];
+      script.remove();
+    };
 
-    if (Array.isArray(data)) {
-      window.dataPegawai = data;
-      console.log("Data Pegawai:", window.dataPegawai);
-      
-      const select = document.getElementById("nama");
-      select.innerHTML = `<option value="">-- Pilih Pegawai --</option>`;
-      data.forEach(row => {
-        const option = document.createElement("option");
-        option.value = row[0]; // Nama Pegawai
-        option.textContent = row[0];
-        select.appendChild(option);
-      });
-    } else {
-      console.error("Data pegawai tidak valid:", data);
-      Swal.fire("Gagal!", "Data pegawai tidak valid.", "error");
-    }
-  } catch (error) {
-    console.error("Gagal memuat data pegawai:", error);
-    Swal.fire("Gagal!", "Tidak bisa memuat data pegawai. Periksa koneksi atau backend.", "error");
-  }
+    document.body.appendChild(script);
+  });
 }
 
 // Fungsi validasi PIN
