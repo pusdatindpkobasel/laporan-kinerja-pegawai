@@ -1,4 +1,4 @@
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyUC0sNeyxFMxT9ax4XPq96dHjePen5sCkf5WjQq29vGsme0T6wmO1MYJO_51tat2ZE7g/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyUC0sNeyxFMxT9ax4XPq96dHjePen5sCkf5WjQq29vGsme0T6wmO1MYJO_51tat2ZE7g/exec'; 
 
 let pegawaiList = [], userData = {}, sesiStatus = {};
 
@@ -55,16 +55,18 @@ function renderSesiForm() {
   for (let i = 1; i <= 7; i++) {
     const sudah = sesiStatus[`sesi${i}`];
     const div = document.createElement("div");
-    div.className = "mb-4";
+    div.className = "card card-sesi";
     div.innerHTML = `
-      <h5>Sesi ${i}</h5>
-      ${sudah ? `
-        <div class="alert alert-success p-2">Sudah dikirim: ${sudah}</div>
-      ` : `
-        <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}"></textarea>
-        <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" />
-        <button class="btn btn-success" onclick="submitSesi(${i})">Kirim Sesi ${i}</button>
-      `}
+      <div class="card-body">
+        <h5 class="card-title">Sesi ${i}</h5>
+        ${sudah ? `
+          <div class="alert alert-success p-2">✅ Sudah dikirim: ${sudah}</div>
+        ` : `
+          <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}"></textarea>
+          <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" />
+          <button class="btn btn-success" onclick="submitSesi(${i})">Kirim Sesi ${i}</button>
+        `}
+      </div>
     `;
     wrapper.appendChild(div);
   }
