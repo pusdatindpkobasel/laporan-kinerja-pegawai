@@ -45,21 +45,6 @@ document.getElementById("accessPin").addEventListener("input", function () {
 });
 
 
-// Load nama pegawai ke dropdown
-async function loadPegawai() {
-  const response = await fetch(`${API_URL}?action=getPegawai`);
-  const data = await response.json();
-  const select = document.getElementById("nama");
-  data.forEach(row => {
-    const option = document.createElement("option");
-    option.value = row[0];
-    option.textContent = row[0];
-    select.appendChild(option);
-  });
-  window.dataPegawai = data;
-}
-
-// Saat nama dipilih
 document.getElementById("nama").addEventListener("change", async () => {
   const nama = document.getElementById("nama").value;
   const data = window.dataPegawai.find(row => row[0] === nama);
@@ -77,7 +62,7 @@ document.getElementById("nama").addEventListener("change", async () => {
     if (!result.submitted) {
       const now = new Date();
       const cutoff = new Date();
-      cutoff.setHours(22, 0, 0, 0);
+      cutoff.setHours(22, 0, 0, 0); // jam 22:00
 
       const timeLeft = cutoff - now;
       if (timeLeft > 0) {
@@ -102,7 +87,6 @@ document.getElementById("nama").addEventListener("change", async () => {
   }
 });
 
-// Buat input sesi
 function setupSesiFields() {
   const sesiContainer = document.getElementById("sesiContainer");
   for (let i = 1; i <= 7; i++) {
@@ -117,7 +101,6 @@ function setupSesiFields() {
   }
 }
 
-// Konversi file ke base64
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -127,10 +110,8 @@ function toBase64(file) {
   });
 }
 
-// Proses kirim laporan
 document.getElementById("btnSubmit").addEventListener("click", async (event) => {
   event.preventDefault();
-
   const now = new Date();
   const day = now.getDay();
   const hours = now.getHours();
@@ -193,14 +174,14 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
 
   if (responseText === "OK") {
     Swal.fire({
-      icon: 'success',
-      title: 'Laporan berhasil dikirim!',
-      showConfirmButton: false,
-      timer: 2000
-    }).then(() => {
-      document.getElementById("laporanForm").reset();
-      document.getElementById("detailPegawai").style.display = "none";
-      location.href = location.pathname;
+    icon: 'success',
+    title: 'Laporan berhasil dikirim!',
+    showConfirmButton: false,
+    timer: 2000
+  }).then(() => {
+    document.getElementById("laporanForm").reset();
+    document.getElementById("detailPegawai").style.display = "none";
+    location.href = location.pathname;
     });
   } else if (responseText === "DUPLICATE") {
     Swal.fire("Duplikat!", "Anda sudah mengisi laporan hari ini.", "warning");
