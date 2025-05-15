@@ -54,6 +54,7 @@ function validateAccessPin() {
   localStorage.setItem("pinValid", "true");
 
   if (allowedPins.includes(inputPin)) {
+  localStorage.setItem("pinValid", "true");
     Swal.fire({
       icon: 'success',
       title: 'PIN Benar',
@@ -186,6 +187,10 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
         body: JSON.stringify({ base64, filename: file.name })
       });
       const fileUrl = await upload.text();
+      const upload = await fetch(...);
+if (!upload.ok) {
+  return Swal.fire("Upload Gagal", "Tidak bisa mengunggah bukti pendukung.", "error");
+}
       data[`bukti${i}`] = fileUrl;
     } else {
       data[`bukti${i}`] = "";
@@ -224,7 +229,7 @@ console.log("Response from server:", responseText); // Tambahkan ini
     Swal.fire("Di Luar Jam!", "Laporan hanya dapat dikirim antara pukul 08.00–22.00.", "info");
   } else {
     Swal.fire("Gagal!", "Terjadi kesalahan saat mengirim laporan.", "error");
-  }
+  } 
 });
 
 document.getElementById("loadingSpinner").style.display = "block";
