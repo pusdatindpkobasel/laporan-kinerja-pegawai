@@ -1,68 +1,35 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyU_i8_6tvnhdvPp-CGpcjUs8Uape1vOFEs836vI4RrHNnQLp30Vt0vcH8y3oSY770oeA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx1MP5LvvNiPsp1zQFkZ75Zm0AZUwZw14D_R8BVDnajTF7SDTCqTenLteoMxfXEreQy/exec";
 
-// Global variabel untuk menyimpan data pegawai
-window.dataPegawai = [];
-
-document.addEventListener("DOMContentLoaded", async function () {
-  const overlay = document.getElementById("pinOverlay");
-
-  const pinValid = localStorage.getItem("pinValid");
-  if (pinValid === "true") {
-    overlay.style.display = "none";
-    document.body.classList.remove("modal-open");
-  } else {
-    document.body.classList.add("modal-open");
-    document.body.style.overflow = "hidden";
-  }
-
+async function loadPegawai() {
   try {
-    await loadPegawai();
-  } catch (e) {
-    console.error("Gagal load data pegawai:", e);
-    Swal.fire("Gagal!", "Tidak bisa memuat data pegawai. Periksa koneksi atau backend.", "error");
+    const res = await fetch(`${API_URL}?action=getPegawai`);
+    if (!res.ok) throw new Error("HTTP error " + res.status);
+    const data = await res.json();
+    console.log("Data pegawai:", data);
+    return data;
+  } catch (error) {
+    console.error("Gagal load data pegawai:", error);
+    throw error;
   }
-
-  setupSesiFields();
-});
-
-
-function loadPegawai() {
-  return new Promise((resolve, reject) => {
-    const callbackName = 'callbackPegawai_' + Date.now();
-
-    window[callbackName] = (data) => {
-      if (Array.isArray(data)) {
-        window.dataPegawai = data;
-
-        const select = document.getElementById("nama");
-        select.innerHTML = `<option value="">-- Pilih Pegawai --</option>`;
-        data.forEach(row => {
-          const option = document.createElement("option");
-          option.value = row[0]; // Nama Pegawai
-          option.textContent = row[0];
-          select.appendChild(option);
-        });
-
-        resolve(data);
-      } else {
-        reject(new Error("Data pegawai tidak valid"));
-      }
-      // Clean up
-      script.remove();
-      delete window[callbackName];
-    };
-
-    const script = document.createElement('script');
-    script.src = `${API_URL}?action=getPegawai&callback=${callbackName}`;
-    script.onerror = () => {
-      reject(new Error("Gagal load data pegawai (script error)"));
-      delete window[callbackName];
-      script.remove();
-    };
-
-    document.body.appendChild(script);
-  });
 }
+
+// Contoh panggil loadPegawai dan tampilkan di dropdown
+async function init() {
+  try {
+    const pegawaiList = await loadPegawai();
+    const select = document.getElementById("selectPegawai");
+    pegawaiList.forEach(row => {
+      const option = document.createElement("option");
+      option.value = row[0]; // asumsikan nama pegawai di kolom 0
+      option.textContent = row[0];
+      select.appendChild(option);
+    });
+  } catch {
+    alert("Gagal memuat data pegawai. Silakan coba lagi.");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", init);
 
 // Fungsi validasi PIN
 function validateAccessPin() {
