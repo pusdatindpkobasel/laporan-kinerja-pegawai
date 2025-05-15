@@ -84,6 +84,7 @@ function toBase64(file) {
 }
 
 document.getElementById("btnSubmit").addEventListener("click", async () => {
+  event.preventDefault();
   const now = new Date();
   const day = now.getDay();
   const hours = now.getHours();
