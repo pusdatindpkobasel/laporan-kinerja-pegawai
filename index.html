@@ -61,28 +61,24 @@
   </div>
 </div>
 
-
-
-
     <!-- Form Wrapper -->
-    <div id="form-wrapper" style="display:none;">
-      <!-- Card Info Pegawai -->
-      <div class="card mb-4">
-        <div class="card-body">
-          <h5 class="card-title mb-3">Informasi Pegawai</h5>
-          <p class="mb-1"><strong>NIP:</strong> <span id="nip"></span></p>
-          <p class="mb-1"><strong>Sub Bidang:</strong> <span id="subbid"></span></p>
-          <p class="mb-1"><strong>Status Kepegawaian:</strong> <span id="status"></span></p>
-          <p class="mb-1"><strong>Golongan:</strong> <span id="golongan"></span></p>
-          <p class="mb-0"><strong>Jabatan:</strong> <span id="jabatan"></span></p>
-        </div>
+<div id="form-wrapper" class="container mt-4" style="display:none;">
+  <!-- Card Info Pegawai -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Informasi Pegawai</h5>
+      <div class="row">
+        <div class="col-md-6 mb-2"><strong>NIP:</strong> <span id="nip"></span></div>
+        <div class="col-md-6 mb-2"><strong>Sub Bidang:</strong> <span id="subbid"></span></div>
+        <div class="col-md-6 mb-2"><strong>Status Kepegawaian:</strong> <span id="status"></span></div>
+        <div class="col-md-6 mb-2"><strong>Golongan:</strong> <span id="golongan"></span></div>
+        <div class="col-md-12"><strong>Jabatan:</strong> <span id="jabatan"></span></div>
       </div>
-
-      <!-- Form Sesi -->
-      <div id="sesi-form"></div>
     </div>
   </div>
 
-  <script src="script.js"></script>
-</body>
+  <!-- Form Sesi (otomatis ditambahkan lewat JS) -->
+  <div id="sesi-form" class="row gy-4"></div>
+</div>
+
 </html>
