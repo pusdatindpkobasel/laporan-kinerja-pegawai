@@ -7,10 +7,15 @@ document.addEventListener("DOMContentLoaded", async function () {
   const overlay = document.getElementById("pinOverlay");
 
   // Aktifkan overlay & modal-open hanya jika overlay masih terlihat
-  if (overlay && overlay.style.display !== "none") {
-    document.body.classList.add("modal-open");
-    document.body.style.overflow = "hidden"; // untuk mencegah scroll
-  }
+
+  const pinValid = localStorage.getItem("pinValid");
+if (pinValid === "true") {
+  document.getElementById("pinOverlay").style.display = "none";
+  document.body.classList.remove("modal-open");
+} else {
+  document.body.classList.add("modal-open");
+  document.body.style.overflow = "hidden";
+}
 
   await loadPegawai();
   setupSesiFields();
@@ -21,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 function validateAccessPin() {
   const allowedPins = ["1234", "4567", "8901"]; // Ganti sesuai kebutuhan
   const inputPin = document.getElementById("accessPin").value;
+  localStorage.setItem("pinValid", "true");
 
   if (allowedPins.includes(inputPin)) {
     Swal.fire({
@@ -171,18 +177,20 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
   });
 
   const responseText = await submit.text();
+console.log("Response from server:", responseText); // Tambahkan ini
 
   if (responseText === "OK") {
     Swal.fire({
-    icon: 'success',
-    title: 'Laporan berhasil dikirim!',
-    showConfirmButton: false,
-    timer: 2000
-  }).then(() => {
-    document.getElementById("laporanForm").reset();
-    document.getElementById("detailPegawai").style.display = "none";
-    location.href = location.pathname;
-    });
+  icon: 'success',
+  title: 'Laporan berhasil dikirim!',
+  showConfirmButton: false,
+  timer: 2000
+}).then(() => {
+  document.getElementById("laporanForm").reset();
+  document.getElementById("detailPegawai").style.display = "none";
+  // Tetap di halaman, jangan reload
+});
+
   } else if (responseText === "DUPLICATE") {
     Swal.fire("Duplikat!", "Anda sudah mengisi laporan hari ini.", "warning");
   } else if (responseText === "HARI_LIBUR") {
