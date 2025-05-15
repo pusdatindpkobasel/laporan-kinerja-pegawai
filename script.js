@@ -168,15 +168,33 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
     Swal.fire("Gagal!", "Terjadi kesalahan saat mengirim laporan.", "error");
   }
 });
+// Fungsi untuk validasi PIN akses
 function validateAccessPin() {
-  const allowedPins = ["1234", "4567", "8901"]; // daftar PIN
+  const allowedPins = ["1234", "4567", "8901"]; // Ganti dengan PIN sesuai data pegawai
   const inputPin = document.getElementById("accessPin").value;
-  document.body.classList.remove("modal-open");
+
   if (allowedPins.includes(inputPin)) {
-    document.getElementById("pinOverlay").style.display = "none"; // ini penting
+    // Tampilkan konfirmasi sukses
+    Swal.fire({
+      icon: 'success',
+      title: 'PIN Benar',
+      text: 'Silakan lanjut mengisi laporan.',
+      confirmButtonText: 'Lanjut'
+    }).then(() => {
+      // Sembunyikan overlay dan aktifkan halaman
+      document.getElementById("pinOverlay").style.display = "none";
+      document.body.classList.remove("modal-open");
+    });
   } else {
+    // Tampilkan pesan error
     document.getElementById("pinError").style.display = "block";
   }
 }
+
+// Saat halaman dimuat, nonaktifkan scroll
+document.addEventListener("DOMContentLoaded", function () {
+  document.body.classList.add("modal-open");
+});
+
 
 
