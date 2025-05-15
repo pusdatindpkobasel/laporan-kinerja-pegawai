@@ -6,27 +6,50 @@
   <title>Laporan Kinerja Harian</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .card-sesi {
+      margin-bottom: 1rem;
+    }
+    @media (min-width: 768px) {
+      .login-dashboard-row {
+        flex-direction: row;
+        align-items: flex-end;
+      }
+    }
+    @media (max-width: 767.98px) {
+      .login-dashboard-row {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="container mt-4">
-    <div class="d-flex flex-wrap align-items-end justify-content-between gap-2">
+  <div class="container my-4">
+    <!-- Login + Dashboard Row -->
+    <div class="d-flex login-dashboard-row flex-wrap gap-2 justify-content-between mb-4">
       <div class="d-flex flex-wrap gap-2">
-        <select id="nama" class="form-select" style="min-width: 200px"></select>
-        <input type="password" id="pin" class="form-control" placeholder="PIN" style="min-width: 100px"/>
+        <select id="nama" class="form-select" style="min-width: 200px" required></select>
+        <input type="password" id="pin" class="form-control" placeholder="PIN" style="min-width: 100px" required/>
         <button class="btn btn-primary" onclick="login()">Login</button>
       </div>
-      <a href="https://lookerstudio.google.com/reporting/xyz" target="_blank" class="btn btn-outline-secondary">Dashboard</a>
+      <a href="https://lookerstudio.google.com/reporting/xyz" target="_blank" class="btn btn-outline-secondary">📊 Dashboard</a>
     </div>
 
-    <div id="form-wrapper" style="display:none" class="mt-4">
-      <div class="mb-3">
-        <strong>NIP:</strong> <span id="nip"></span><br />
-        <strong>Sub Bidang:</strong> <span id="subbid"></span><br />
-        <strong>Status:</strong> <span id="status"></span><br />
-        <strong>Golongan:</strong> <span id="golongan"></span><br />
-        <strong>Jabatan:</strong> <span id="jabatan"></span>
+    <!-- Form Wrapper -->
+    <div id="form-wrapper" style="display:none;">
+      <!-- Card Info Pegawai -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Informasi Pegawai</h5>
+          <p class="mb-1"><strong>NIP:</strong> <span id="nip"></span></p>
+          <p class="mb-1"><strong>Sub Bidang:</strong> <span id="subbid"></span></p>
+          <p class="mb-1"><strong>Status Kepegawaian:</strong> <span id="status"></span></p>
+          <p class="mb-1"><strong>Golongan:</strong> <span id="golongan"></span></p>
+          <p class="mb-0"><strong>Jabatan:</strong> <span id="jabatan"></span></p>
+        </div>
       </div>
 
+      <!-- Form Sesi -->
       <div id="sesi-form"></div>
     </div>
   </div>
