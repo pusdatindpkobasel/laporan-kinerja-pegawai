@@ -1,12 +1,36 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbyU_i8_6tvnhdvPp-CGpcjUs8Uape1vOFEs836vI4RrHNnQLp30Vt0vcH8y3oSY770oeA/exec";
-document.addEventListener("DOMContentLoaded", function () {
-  document.body.classList.add("modal-open");
-});
+
+// Global variabel untuk menyimpan data pegawai
+window.dataPegawai = [];
+
+// Saat halaman dimuat
 document.addEventListener("DOMContentLoaded", async () => {
+  document.body.classList.add("modal-open");
   await loadPegawai();
   setupSesiFields();
 });
 
+// Fungsi validasi PIN
+function validateAccessPin() {
+  const allowedPins = ["1234", "4567", "8901"]; // Ganti PIN sesuai kebutuhan
+  const inputPin = document.getElementById("accessPin").value;
+
+  if (allowedPins.includes(inputPin)) {
+    Swal.fire({
+      icon: 'success',
+      title: 'PIN Benar',
+      text: 'Silakan lanjut mengisi laporan.',
+      confirmButtonText: 'Lanjut'
+    }).then(() => {
+      document.getElementById("pinOverlay").style.display = "none";
+      document.body.classList.remove("modal-open");
+    });
+  } else {
+    document.getElementById("pinError").style.display = "block";
+  }
+}
+
+// Load nama pegawai ke dropdown
 async function loadPegawai() {
   const response = await fetch(`${API_URL}?action=getPegawai`);
   const data = await response.json();
@@ -20,6 +44,7 @@ async function loadPegawai() {
   window.dataPegawai = data;
 }
 
+// Saat nama dipilih
 document.getElementById("nama").addEventListener("change", async () => {
   const nama = document.getElementById("nama").value;
   const data = window.dataPegawai.find(row => row[0] === nama);
@@ -37,7 +62,7 @@ document.getElementById("nama").addEventListener("change", async () => {
     if (!result.submitted) {
       const now = new Date();
       const cutoff = new Date();
-      cutoff.setHours(22, 0, 0, 0); // jam 22:00
+      cutoff.setHours(22, 0, 0, 0);
 
       const timeLeft = cutoff - now;
       if (timeLeft > 0) {
@@ -62,6 +87,7 @@ document.getElementById("nama").addEventListener("change", async () => {
   }
 });
 
+// Buat input sesi
 function setupSesiFields() {
   const sesiContainer = document.getElementById("sesiContainer");
   for (let i = 1; i <= 7; i++) {
@@ -76,6 +102,7 @@ function setupSesiFields() {
   }
 }
 
+// Konversi file ke base64
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -85,8 +112,10 @@ function toBase64(file) {
   });
 }
 
+// Proses kirim laporan
 document.getElementById("btnSubmit").addEventListener("click", async (event) => {
   event.preventDefault();
+
   const now = new Date();
   const day = now.getDay();
   const hours = now.getHours();
@@ -149,14 +178,14 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
 
   if (responseText === "OK") {
     Swal.fire({
-    icon: 'success',
-    title: 'Laporan berhasil dikirim!',
-    showConfirmButton: false,
-    timer: 2000
-  }).then(() => {
-    document.getElementById("laporanForm").reset();
-    document.getElementById("detailPegawai").style.display = "none";
-    location.href = location.pathname;
+      icon: 'success',
+      title: 'Laporan berhasil dikirim!',
+      showConfirmButton: false,
+      timer: 2000
+    }).then(() => {
+      document.getElementById("laporanForm").reset();
+      document.getElementById("detailPegawai").style.display = "none";
+      location.href = location.pathname;
     });
   } else if (responseText === "DUPLICATE") {
     Swal.fire("Duplikat!", "Anda sudah mengisi laporan hari ini.", "warning");
@@ -168,33 +197,3 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
     Swal.fire("Gagal!", "Terjadi kesalahan saat mengirim laporan.", "error");
   }
 });
-// Fungsi untuk validasi PIN akses
-function validateAccessPin() {
-  const allowedPins = ["1234", "4567", "8901"]; // Ganti dengan PIN sesuai data pegawai
-  const inputPin = document.getElementById("accessPin").value;
-
-  if (allowedPins.includes(inputPin)) {
-    // Tampilkan konfirmasi sukses
-    Swal.fire({
-      icon: 'success',
-      title: 'PIN Benar',
-      text: 'Silakan lanjut mengisi laporan.',
-      confirmButtonText: 'Lanjut'
-    }).then(() => {
-      // Sembunyikan overlay dan aktifkan halaman
-      document.getElementById("pinOverlay").style.display = "none";
-      document.body.classList.remove("modal-open");
-    });
-  } else {
-    // Tampilkan pesan error
-    document.getElementById("pinError").style.display = "block";
-  }
-}
-
-// Saat halaman dimuat, nonaktifkan scroll
-document.addEventListener("DOMContentLoaded", function () {
-  document.body.classList.add("modal-open");
-});
-
-
-
