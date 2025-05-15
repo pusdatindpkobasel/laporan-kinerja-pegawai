@@ -1,52 +1,49 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Laporan Kinerja Harian</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-  <div id="loadingSpinner" style="display:none;">Loading...</div>
-<div id="pinOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-light d-flex justify-content-center align-items-center" style="z-index: 9999;">
-  <div class="card p-4 shadow" style="min-width: 300px;">
-    <h5 class="card-title mb-3 text-center">Masukkan PIN Akses</h5>
-    <div class="mb-3">
-      <input type="password" id="accessPin" class="form-control" placeholder="PIN Anda">
+  <div class="container mt-5">
+    <h3 class="text-center mb-4">Laporan Kinerja Harian</h3>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label">Nama Pegawai</label>
+            <select id="nama" class="form-select"></select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">PIN</label>
+            <input type="password" id="pin" class="form-control">
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" onclick="login()">Login</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="d-grid">
-      <button class="btn btn-primary" onclick="validateAccessPin()">Masuk</button>
-    </div>
-    <p id="pinError" class="text-danger mt-2 text-center" style="display: none;">PIN salah. Silakan coba lagi.</p>
-  </div>
-</div>
-  
-  <div class="container my-4">
-    <h3 class="text-center">Laporan Kinerja Harian</h3>
-    <p class="text-center text-muted">
-      Isi laporan Anda hanya sekali setiap hari kerja (Senin–Jumat) antara pukul 08.00–22.00.
-    </p>
-     
-    <form id="laporanForm">
+
+    <div id="form-wrapper" style="display:none">
       <div class="mb-3">
-        <label for="nama" class="form-label">Nama Pegawai</label>
-        <select id="nama" class="form-select" required></select>
+        <strong>NIP:</strong> <span id="nip"></span><br>
+        <strong>Sub Bidang:</strong> <span id="subbid"></span><br>
+        <strong>Status:</strong> <span id="status"></span><br>
+        <strong>Golongan:</strong> <span id="gol"></span><br>
+        <strong>Jabatan:</strong> <span id="jabatan"></span>
       </div>
 
-      <div id="detailPegawai" style="display:none;">
-        <p>NIP: <span id="nip"></span></p>
-        <p>Sub Bidang: <span id="subbid"></span></p>
-        <p>Status: <span id="status"></span></p>
-        <p>Golongan: <span id="golongan"></span></p>
-        <p>Jabatan: <span id="jabatan"></span></p>
-      </div>
+      <div id="sesi-form"></div>
 
-      <hr />
-      <div id="sesiContainer"></div>
-      <button id="btnSubmit" type="button" class="btn btn-primary">Kirim Laporan</button>
-    </form>
+      <div class="mt-4">
+        <a href="https://lookerstudio.google.com/reporting/xyz" target="_blank" class="btn btn-outline-secondary">Lihat Dashboard</a>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>
