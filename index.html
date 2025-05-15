@@ -25,60 +25,41 @@
 </head>
 <body>
 <div class="container py-5">
-  <!-- Header -->
-  <header class="text-center mb-4">
-    <h1 class="display-5 fw-bold">Laporan Kinerja Pegawai</h1>
-    <p class="lead">Sistem laporan harian untuk mencatat aktivitas pegawai setiap hari. Pilih nama, masukkan PIN, dan kirimkan laporan sesi Anda dengan mengisi uraian pekerjaan dan mengunggah bukti dukung.</p>
-  </header>
-
-  <!-- Login Card -->
-  <div class="d-flex justify-content-center">
-    <div class="card shadow p-4" style="width: 100%; max-width: 500px;">
-      <h2 class="text-center mb-2 fs-4">Masuk Sistem</h2>
-      <p class="text-center text-muted mb-4 small">
-        Pilih nama Anda, masukkan PIN, dan mulai isi laporan sesi hari ini.
-      </p>
-
-      <form onsubmit="login(); return false;" class="d-grid gap-3">
-        <select id="nama" class="form-select" required>
-          <option value="">Pilih Nama</option>
-        </select>
-        <input type="password" id="pin" class="form-control" placeholder="PIN" required />
-
-        <div class="d-flex justify-content-between gap-2">
-          <button type="submit" class="btn btn-dark btn-lg d-flex align-items-center gap-2 px-4 py-2 w-50">
-            <!-- icon -->
-            Login
-          </button>
-
-          <a href="https://lookerstudio.google.com/reporting/xyz" target="_blank" class="btn btn-success btn-lg d-flex align-items-center gap-2 px-4 py-2 w-50">
-            <!-- icon -->
-            Dashboard
-          </a>
-        </div>
-      </form>
+    <!-- Header dengan Judul dan Deskripsi Panduan -->
+    <header class="text-center mb-5">
+      <h1 class="display-4">Laporan Kinerja Pegawai</h1>
+      <p class="lead">Sistem laporan harian untuk mencatat aktivitas pegawai setiap hari. Pilih nama, masukkan PIN, dan kirimkan laporan sesi Anda dengan mengisi uraian pekerjaan dan mengunggah bukti dukung.</p>
+    </header>
+<div class="container my-4">
+    <!-- Login + Dashboard Row -->
+    <div class="d-flex login-dashboard-row flex-wrap gap-2 justify-content-between mb-4">
+      <div class="d-flex flex-wrap gap-2">
+        <select id="nama" class="form-select" style="min-width: 200px" required></select>
+        <input type="password" id="pin" class="form-control" placeholder="PIN" style="min-width: 100px" required/>
+        <button class="btn btn-primary" onclick="login()">Login</button>
+      </div>
+      <a href="https://lookerstudio.google.com/reporting/xyz" target="_blank" class="btn btn-outline-secondary">📊 Dashboard</a>
     </div>
-  </div>
-</div>
 
     <!-- Form Wrapper -->
-<div id="form-wrapper" class="container mt-4" style="display:none;">
-  <!-- Card Info Pegawai -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
-      <h5 class="card-title mb-3">Informasi Pegawai</h5>
-      <div class="row">
-        <div class="col-md-6 mb-2"><strong>NIP:</strong> <span id="nip"></span></div>
-        <div class="col-md-6 mb-2"><strong>Sub Bidang:</strong> <span id="subbid"></span></div>
-        <div class="col-md-6 mb-2"><strong>Status Kepegawaian:</strong> <span id="status"></span></div>
-        <div class="col-md-6 mb-2"><strong>Golongan:</strong> <span id="golongan"></span></div>
-        <div class="col-md-12"><strong>Jabatan:</strong> <span id="jabatan"></span></div>
+    <div id="form-wrapper" style="display:none;">
+      <!-- Card Info Pegawai -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Informasi Pegawai</h5>
+          <p class="mb-1"><strong>NIP:</strong> <span id="nip"></span></p>
+          <p class="mb-1"><strong>Sub Bidang:</strong> <span id="subbid"></span></p>
+          <p class="mb-1"><strong>Status Kepegawaian:</strong> <span id="status"></span></p>
+          <p class="mb-1"><strong>Golongan:</strong> <span id="golongan"></span></p>
+          <p class="mb-0"><strong>Jabatan:</strong> <span id="jabatan"></span></p>
+        </div>
       </div>
+
+      <!-- Form Sesi -->
+      <div id="sesi-form"></div>
     </div>
   </div>
 
-  <!-- Form Sesi (otomatis ditambahkan lewat JS) -->
-  <div id="sesi-form" class="row gy-4"></div>
-</div>
-
+  <script src="script.js"></script>
+</body>
 </html>
