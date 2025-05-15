@@ -167,7 +167,7 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
   }
 });
 function validateAccessPin() {
-  const allowedPins = ["1234", "4567", "8901"]; // ganti dengan PIN yang kamu pakai
+  const allowedPins = ["@dpko2025", "4567", "8901"]; // ganti dengan PIN yang kamu pakai
   const inputPin = document.getElementById("accessPin").value;
 
   if (allowedPins.includes(inputPin)) {
