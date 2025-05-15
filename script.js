@@ -23,8 +23,17 @@ if (pinValid === "true") {
 
 async function loadPegawai() {
   try {
+    Swal.fire({
+      title: 'Memuat data pegawai...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     const res = await fetch(`${API_URL}?action=getPegawai`);
     const data = await res.json();
+    Swal.close(); // Tutup loading
 
     if (Array.isArray(data)) {
       window.dataPegawai = data;
@@ -40,6 +49,7 @@ async function loadPegawai() {
       });
     } else {
       console.error("Data pegawai tidak valid:", data);
+      Swal.fire("Gagal!", "Data pegawai tidak valid.", "error");
     }
   } catch (error) {
     console.error("Gagal memuat data pegawai:", error);
@@ -144,6 +154,13 @@ function toBase64(file) {
 
 document.getElementById("btnSubmit").addEventListener("click", async (event) => {
   event.preventDefault();
+  Swal.fire({
+    title: 'Menyimpan laporan...',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
   const now = new Date();
   const day = now.getDay();
   const hours = now.getHours();
@@ -192,7 +209,7 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
     method: "POST",
     body: JSON.stringify({ base64, filename: file.name })
   });
-
+  Swal.close();
   // Cek apakah upload berhasil
   if (!uploadResponse.ok) {
     return Swal.fire("Upload Gagal", `Tidak bisa mengunggah bukti sesi ${i}.`, "error");
