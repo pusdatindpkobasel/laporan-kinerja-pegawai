@@ -180,19 +180,27 @@ document.getElementById("btnSubmit").addEventListener("click", async (event) => 
 
     const fileInput = document.getElementById(`bukti${i}`);
     if (fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      const base64 = await toBase64(file);
-      const upload = await fetch(`${API_URL}?action=uploadFile`, {
-        method: "POST",
-        body: JSON.stringify({ base64, filename: file.name })
-      });
-      const fileUrl = await upload.text();
-      const upload = await fetch(...);
-if (!upload.ok) {
-  return Swal.fire("Upload Gagal", "Tidak bisa mengunggah bukti pendukung.", "error");
-}
-      data[`bukti${i}`] = fileUrl;
-    } else {
+  const file = fileInput.files[0];
+
+  // Cek ukuran file
+  if (file.size > 5 * 1024 * 1024) {
+    return Swal.fire("File Terlalu Besar", `Ukuran maksimal 5MB per file. (Sesi ${i})`, "warning");
+  }
+
+  const base64 = await toBase64(file);
+  const uploadResponse = await fetch(`${API_URL}?action=uploadFile`, {
+    method: "POST",
+    body: JSON.stringify({ base64, filename: file.name })
+  });
+
+  // Cek apakah upload berhasil
+  if (!uploadResponse.ok) {
+    return Swal.fire("Upload Gagal", `Tidak bisa mengunggah bukti sesi ${i}.`, "error");
+  }
+
+  const fileUrl = await uploadResponse.text();
+  data[`bukti${i}`] = fileUrl;
+} else {
       data[`bukti${i}`] = "";
     }
   }
