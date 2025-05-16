@@ -62,9 +62,10 @@ function renderSesiForm() {
         <h5 class="card-title">Sesi ${i}</h5>
         ${sudah ? `
           <div class="alert alert-success p-2">
-            ✅ Sudah dikirim: ${sudah}
-            ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
-          </div>
+  ✅ Sudah dikirim: ${sudah}
+  ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
+  <br><small class="text-muted">Isian sesi tidak bisa diedit ulang.</small>
+</div>
         ` : `
           <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}">${sudah || ""}</textarea>
           <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" />
