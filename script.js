@@ -2,21 +2,22 @@ const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyUC0sNeyxFMxT9ax4X
 
 let pegawaiList = [], userData = {}, sesiStatus = {};
 
-document.addEventListener("DOMContentLoaded", () => {
-  const script = document.createElement("script");
-  script.src = `${WEBAPP_URL}?action=getPegawai`;
-  document.body.appendChild(script);
-});
+window.onload = () => {
+  fetch(`${WEB_APP_URL}?action=getPegawai&callback=handlePegawai`)
+    .then(res => res.text())
+    .then(eval)
+    .catch(err => Swal.fire('Error', 'Gagal memuat data pegawai', 'error'));
+};
 
 function handlePegawai(data) {
   pegawaiList = data;
-  const select = document.getElementById("username");
-  select.innerHTML = '<option value="">Pilih nama</option>';
+  const namaSelect = document.getElementById("nama");
+  namaSelect.innerHTML = '<option value="">Pilih Nama</option>';
   data.forEach(p => {
     const opt = document.createElement("option");
     opt.value = p[0];
     opt.textContent = p[0];
-    select.appendChild(opt);
+    namaSelect.appendChild(opt);
   });
 }
 
