@@ -66,7 +66,7 @@ function renderSesiForm() {
             ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
           </div>
         ` : `
-          <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}"></textarea>
+          <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}">${sudah || ""}</textarea>
           <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" />
           <button class="btn btn-success" onclick="submitSesi(${i})">Kirim Sesi ${i}</button>
         `}
