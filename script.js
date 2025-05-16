@@ -1,120 +1,125 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbyUC0sNeyxFMxT9ax4XPq96dHjePen5sCkf5WjQq29vGsme0T6wmO1MYJO_51tat2ZE7g/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyUC0sNeyxFMxT9ax4XPq96dHjePen5sCkf5WjQq29vGsme0T6wmO1MYJO_51tat2ZE7g/exec'; 
 
-let pegawaiData = [];
-let laporanData = {};
+let pegawaiList = [], userData = {}, sesiStatus = {};
 
-function getPegawai() {
-  fetch(`${API_URL}?action=getPegawai`)
-    .then(response => response.text())
-    .then(data => {
-      eval(data);  // This will call handlePegawai function
-    })
-    .catch(error => console.error('Error fetching pegawai:', error));
-}
+window.onload = () => {
+  fetch(`${WEB_APP_URL}?action=getPegawai&callback=handlePegawai`)
+    .then(res => res.text())
+    .then(eval)
+    .catch(err => Swal.fire('Error', 'Gagal memuat data pegawai', 'error'));
+};
 
 function handlePegawai(data) {
-  pegawaiData = data;
-  const namaSelect = document.getElementById('nama');
-  pegawaiData.forEach(pegawai => {
-    const option = document.createElement('option');
-    option.value = pegawai[0];  // Assumes pegawai[0] is the name
-    option.innerText = pegawai[0];
-    namaSelect.appendChild(option);
+  pegawaiList = data;
+  const namaSelect = document.getElementById("nama");
+  namaSelect.innerHTML = '<option value="">Pilih Nama</option>';
+  data.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p[0];
+    opt.textContent = p[0];
+    namaSelect.appendChild(opt);
   });
 }
 
-function getLaporan() {
-  const nama = document.getElementById('nama').value;
-  if (!nama) {
-    alert('Pilih nama terlebih dahulu');
-    return;
-  }
+function login() {
+  const nama = document.getElementById("nama").value;
+  const pin = document.getElementById("pin").value;
+  const data = pegawaiList.find(p => p[0] === nama);
+  if (!data || pin !== data[7]) return Swal.fire("Gagal", "PIN salah", "error");
 
-  fetch(`${API_URL}?action=getLaporan&nama=${nama}`)
-    .then(response => response.json())
-    .then(data => {
-      laporanData = data;
-      updateFormStatus();
-    })
-    .catch(error => console.error('Error fetching laporan:', error));
-}
-
-function updateFormStatus() {
-  for (let i = 1; i <= 7; i++) {
-    const sesiInput = document.getElementById(`sesi${i}`);
-    const buktiInput = document.getElementById(`bukti${i}`);
-    const sesiStatus = document.getElementById(`statusSesi${i}`);
-
-    if (laporanData[`sesi${i}`] && laporanData[`bukti${i}`]) {
-      sesiInput.disabled = true;
-      buktiInput.disabled = true;
-      sesiStatus.innerText = 'Terkirim';
-      sesiStatus.style.color = 'green';
-    } else {
-      sesiInput.disabled = false;
-      buktiInput.disabled = false;
-      sesiStatus.innerText = 'Belum Terkirim';
-      sesiStatus.style.color = 'red';
-    }
-  }
-}
-
-function submitForm() {
-  const nama = document.getElementById('nama').value;
-  const nip = pegawaiData.find(pegawai => pegawai[0] === nama)[1]; // Assumes nip is in the second column
-  const subbid = pegawaiData.find(pegawai => pegawai[0] === nama)[2]; // Assumes subbid is in the third column
-  const status = pegawaiData.find(pegawai => pegawai[0] === nama)[3]; // Assumes status is in the fourth column
-  const golongan = pegawaiData.find(pegawai => pegawai[0] === nama)[4]; // Assumes golongan is in the fifth column
-  const jabatan = pegawaiData.find(pegawai => pegawai[0] === nama)[5]; // Assumes jabatan is in the sixth column
-
-  const formData = {
-    nama,
-    nip,
-    subbid,
-    status,
-    golongan,
-    jabatan,
+  userData = {
+    nama: data[0], nip: data[2], subbid: data[3],
+    status: data[4], golongan: data[5], jabatan: data[6]
   };
+  document.getElementById("nip").textContent = userData.nip;
+  document.getElementById("subbid").textContent = userData.subbid;
+  document.getElementById("status").textContent = userData.status;
+  document.getElementById("golongan").textContent = userData.golongan;
+  document.getElementById("jabatan").textContent = userData.jabatan;
+  document.getElementById("form-wrapper").style.display = "block";
+  loadSesiStatus();
+}
 
-  for (let i = 1; i <= 7; i++) {
-    formData[`sesi${i}`] = document.getElementById(`sesi${i}`).value;
-    formData[`bukti${i}`] = document.getElementById(`bukti${i}`).files[0] ? document.getElementById(`bukti${i}`).files[0].name : '';  // Assume the file name is enough for now
-  }
-
-  const statusMessage = document.getElementById('statusMessage');
-
-  // Check if any session has been submitted already
-  if (Object.values(laporanData).some(value => value)) {
-    statusMessage.innerText = 'Anda sudah mengirim laporan hari ini. Tidak bisa mengirim ulang.';
-    statusMessage.style.color = 'red';
-    return;
-  }
-
-  fetch(API_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'submitForm', data: formData }),
-    headers: { 'Content-Type': 'application/json' },
-  })
-    .then(response => response.text())
+function loadSesiStatus() {
+  fetch(`${WEB_APP_URL}?action=getLaporan&nama=${userData.nama}`)
+    .then(res => res.json())
     .then(data => {
-      if (data === 'OK') {
-        statusMessage.innerText = 'Laporan berhasil dikirim!';
-        statusMessage.style.color = 'green';
-        getLaporan();  // Update form status after successful submit
-      } else {
-        statusMessage.innerText = 'Terjadi kesalahan saat mengirim laporan.';
-        statusMessage.style.color = 'red';
-      }
-    })
-    .catch(error => {
-      console.error('Error submitting form:', error);
-      statusMessage.innerText = 'Terjadi kesalahan saat mengirim laporan.';
-      statusMessage.style.color = 'red';
+      sesiStatus = data || {};
+      renderSesiForm();
     });
 }
 
-document.getElementById('nama').addEventListener('change', getLaporan);
-document.getElementById('submitBtn').addEventListener('click', submitForm);
+function renderSesiForm() {
+  const wrapper = document.getElementById("sesi-form");
+  wrapper.innerHTML = "";
+  for (let i = 1; i <= 7; i++) {
+    const sudah = sesiStatus[`sesi${i}`];
+    const bukti = sesiStatus[`bukti${i}`];
+    const div = document.createElement("div");
+    div.className = "card card-sesi";
+    div.innerHTML = `
+      <div class="card-body">
+        <h5 class="card-title">Sesi ${i}</h5>
+        ${sudah ? `
+          <div class="alert alert-success p-2">
+            ✅ Sudah dikirim: ${sudah}
+            ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
+          </div>
+        ` : `
+          <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}">${sudah || ""}</textarea>
+          <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" />
+          <button class="btn btn-success" onclick="submitSesi(${i})">Kirim Sesi ${i}</button>
+        `}
+      </div>
+    `;
+    wrapper.appendChild(div);
+  }
+}
 
-// Load pegawai data on page load
-window.onload = getPegawai;
+async function submitSesi(i) {
+  const pekerjaan = document.getElementById(`sesi${i}`).value.trim();
+  const file = document.getElementById(`file${i}`).files[0];
+  if (!pekerjaan || !file) return Swal.fire("Lengkapi", "Isi uraian & pilih file", "warning");
+
+  Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
+
+  const reader = new FileReader();
+  reader.onload = async function () {
+    const base64 = reader.result;
+    const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${file.name.split('.').pop()}`;
+    const uploadRes = await fetch(WEB_APP_URL + "?action=uploadFile", {
+      method: "POST",
+      body: JSON.stringify({ filename, base64 })
+    });
+    const fileUrl = await uploadRes.text();
+
+    const payload = {
+      nama: userData.nama,
+      nip: userData.nip,
+      subbid: userData.subbid,
+      status: userData.status,
+      golongan: userData.golongan,
+      jabatan: userData.jabatan,
+      [`sesi${i}`]: pekerjaan,
+      [`bukti${i}`]: fileUrl
+    };
+
+    const res = await fetch(WEB_APP_URL + "?action=submitForm", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+    const result = await res.text();
+
+    if (result === "OK") {
+      Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
+      loadSesiStatus();
+    } else if (result === "HARI_LIBUR") {
+      Swal.fire("Ditolak", "Form hanya aktif Senin–Jumat", "error");
+    } else if (result === "DI_LUAR_JAM") {
+      Swal.fire("Ditolak", "Form hanya bisa diisi pukul 08.00–22.00", "error");
+    } else {
+      Swal.fire("Gagal", "Terjadi kesalahan", "error");
+    }
+  };
+  reader.readAsDataURL(file);
+}
