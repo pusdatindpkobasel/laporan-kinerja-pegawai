@@ -54,13 +54,17 @@ function renderSesiForm() {
   wrapper.innerHTML = "";
   for (let i = 1; i <= 7; i++) {
     const sudah = sesiStatus[`sesi${i}`];
+    const bukti = sesiStatus[`bukti${i}`];
     const div = document.createElement("div");
     div.className = "card card-sesi";
     div.innerHTML = `
       <div class="card-body">
         <h5 class="card-title">Sesi ${i}</h5>
         ${sudah ? `
-          <div class="alert alert-success p-2">✅ Sudah dikirim: ${sudah}</div>
+          <div class="alert alert-success p-2">
+            ✅ Sudah dikirim: ${sudah}
+            ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
+          </div>
         ` : `
           <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}"></textarea>
           <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" />
