@@ -21,6 +21,7 @@ function handlePegawai(data) {
   });
 }
 
+
 function login() {
   const nama = document.getElementById("nama").value;
   const pin = document.getElementById("pin").value;
