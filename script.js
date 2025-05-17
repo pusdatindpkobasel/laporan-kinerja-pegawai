@@ -52,6 +52,26 @@ function loadPegawai() {
   });
 }
 
+function handlePegawai(data) {
+  pegawaiList = data;
+  const namaSelect = document.getElementById("nama");
+  namaSelect.innerHTML = '<option value="">Pilih Nama</option>';
+  data.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p[0];
+    opt.textContent = p[0];
+    namaSelect.appendChild(opt);
+  });
+}
+
+window.onload = () => {
+  autoLogin();
+  loadPegawai()
+    .then(handlePegawai)
+    .catch(() => Swal.fire('Error', 'Gagal memuat data pegawai', 'error'));
+};
+
+
 window.onload = () => {
   autoLogin(); // <- tambahkan ini di awal
 loadPegawai()
