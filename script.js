@@ -7,10 +7,6 @@ window.onload = () => {
     .then(res => res.text())
     .then(eval)
     .catch(err => Swal.fire('Error', 'Gagal memuat data pegawai', 'error'));
-  document.getElementById("pin").addEventListener("keyup", function(event) {
-  if (event.key === "Enter") {
-    login();
-  }
 };
 
 function handlePegawai(data) {
