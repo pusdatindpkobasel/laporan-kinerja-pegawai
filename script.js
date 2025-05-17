@@ -185,62 +185,70 @@ ${sudah ? `
 }
 
 async function submitSesi(i) {
-  const pekerjaan = document.getElementById(`sesi${i}`).value.trim();
-  const file = document.getElementById(`file${i}`).files[0];
-  
-  if (!pekerjaan || !file) return Swal.fire("Lengkapi", "Isi uraian & pilih file", "warning");
-  if (file.size > 2 * 1024 * 1024) {
-    return Swal.fire("File terlalu besar", "Maksimal ukuran file 2MB", "warning");
-  }
-  const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (!allowedExt.includes(ext)) {
-    return Swal.fire("File tidak diizinkan", "Hanya PDF, JPG, JPEG, PNG", "warning");
-  }
-  Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
+  const sesiInput = document.getElementById(`sesi${i}`);
+  const buktiInput = document.getElementById(`bukti${i}`);
 
-  const reader = new FileReader();
-  reader.onload = async function () {
-    const base64 = reader.result;
-    const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${file.name.split('.').pop()}`;
-    const uploadRes = await fetch(WEB_APP_URL + "?action=uploadFile", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ filename, base64 })
-});
-const uploadResult = await uploadRes.json();
-if (!uploadResult.success) {
-  return Swal.fire("Gagal upload file", uploadResult.message || "Error", "error");
-}
-const fileUrl = uploadResult.url;
+  const isi = sesiInput.value.trim();
+  const file = buktiInput.files[0];
 
+  if (!isi || !file) {
+    Swal.fire("Lengkapi", "Isi uraian dan pilih bukti", "warning");
+    return;
+  }
+
+  try {
+    // Upload bukti ke Apps Script
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("nama", currentUser.nama);
+    formData.append("nip", currentUser.nip);
+    formData.append("subbid", currentUser.subbid);
+
+    const uploadRes = await fetch(WEB_APP_URL + "?action=uploadBukti", {
+      method: "POST",
+      body: formData
+    });
+
+    const uploadResult = await uploadRes.json();
+
+    if (!uploadResult.success) {
+      Swal.fire("Gagal Upload", uploadResult.message || "Tidak bisa upload file", "error");
+      return;
+    }
+
+    const linkBukti = uploadResult.url;
+
+    // Kirim data sesi + link bukti ke Spreadsheet
     const payload = {
-      nama: userData.nama,
-      nip: userData.nip,
-      subbid: userData.subbid,
-      status: userData.status,
-      golongan: userData.golongan,
-      jabatan: userData.jabatan,
-      [`sesi${i}`]: pekerjaan,
-      [`bukti${i}`]: fileUrl
+      action: "submitForm",
+      nama: currentUser.nama,
+      nip: currentUser.nip,
+      subbid: currentUser.subbid,
+      status: currentUser.status,
+      golongan: currentUser.golongan,
+      jabatan: currentUser.jabatan,
+      [`sesi${nomorSesi}`]: isi,
+      [`bukti${nomorSesi}`]: linkBukti
     };
 
-    const res = await fetch(WEB_APP_URL + "?action=submitForm", {
-  method: "POST",
-  body: JSON.stringify(payload)
-});
-const result = await res.json();
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
 
-if (result.success) {
-  Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
-  loadSesiStatus();
-} else if (result.message === "HARI_LIBUR") {
-  Swal.fire("Ditolak", "Form hanya aktif Senin–Jumat", "error");
-} else if (result.message === "DI_LUAR_JAM") {
-  Swal.fire("Ditolak", "Form hanya bisa diisi pukul 08.00–22.00", "error");
-} else {
-  Swal.fire("Gagal", "Terjadi kesalahan: " + (result.message || "Unknown"), "error");
+    const result = await res.json();
+
+    if (result.success) {
+      Swal.fire("Berhasil", `Sesi ${nomorSesi} berhasil dikirim`, "success");
+      loadSesiStatus();
+    } else {
+      Swal.fire("Gagal", result.message || "Terjadi kesalahan", "error");
+    }
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Error", "Terjadi kesalahan koneksi", "error");
+  }
 }
-  };
+
   reader.readAsDataURL(file);
 }
