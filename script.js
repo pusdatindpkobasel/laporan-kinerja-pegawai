@@ -33,26 +33,41 @@ function autoLogin() {
   }
 }
 
-window.onload = () => {
-  autoLogin(); // <- tambahkan ini di awal
-
-  fetch(`${WEB_APP_URL}?action=getPegawai&callback=handlePegawai`)
-    .then(res => res.text())
-    .then(eval)
-    .catch(err => Swal.fire('Error', 'Gagal memuat data pegawai', 'error'));
-};
-
-function handlePegawai(data) {
-  pegawaiList = data;
-  const namaSelect = document.getElementById("nama");
-  namaSelect.innerHTML = '<option value="">Pilih Nama</option>';
-  data.forEach(p => {
-    const opt = document.createElement("option");
-    opt.value = p[0];
-    opt.textContent = p[0];
-    namaSelect.appendChild(opt);
+function loadPegawai() {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'handlePegawai_' + Date.now();
+    window[callbackName] = (data) => {
+      resolve(data);
+      delete window[callbackName];
+      script.remove();
+    };
+    const script = document.createElement('script');
+    script.src = `${WEB_APP_URL}?action=getPegawai&callback=${callbackName}`;
+    script.onerror = () => {
+      reject(new Error('Gagal memuat data pegawai'));
+      delete window[callbackName];
+      script.remove();
+    };
+    document.body.appendChild(script);
   });
 }
+
+window.onload = () => {
+  autoLogin(); // <- tambahkan ini di awal
+loadPegawai()
+  .then(data => {
+    pegawaiList = data;
+    const namaSelect = document.getElementById("nama");
+    namaSelect.innerHTML = '<option value="">Pilih Nama</option>';
+    data.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p[0];
+      opt.textContent = p[0];
+      namaSelect.appendChild(opt);
+    });
+  })
+  .catch(() => Swal.fire('Error', 'Gagal memuat data pegawai', 'error'));
+};
 
 function login() {
   const nama = document.getElementById("nama").value;
