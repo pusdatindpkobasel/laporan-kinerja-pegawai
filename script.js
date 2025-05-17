@@ -31,12 +31,19 @@ function login() {
     nama: data[0], nip: data[2], subbid: data[3],
     status: data[4], golongan: data[5], jabatan: data[6]
   };
+
+  // Tampilkan identitas
   document.getElementById("nip").textContent = userData.nip;
   document.getElementById("subbid").textContent = userData.subbid;
   document.getElementById("status").textContent = userData.status;
   document.getElementById("golongan").textContent = userData.golongan;
   document.getElementById("jabatan").textContent = userData.jabatan;
+
+  // Tampilkan nama di header
+  document.getElementById("user-name-display").textContent = `👤 ${userData.nama}`;
   document.getElementById("form-wrapper").style.display = "block";
+  document.getElementById("login-form").style.display = "none";
+
   loadSesiStatus();
 }
 
@@ -56,18 +63,18 @@ function renderSesiForm() {
     const sudah = sesiStatus[`sesi${i}`];
     const bukti = sesiStatus[`bukti${i}`];
     const div = document.createElement("div");
-    div.className = "card card-sesi";
+    div.className = "card card-sesi mb-3";
     div.innerHTML = `
       <div class="card-body">
         <h5 class="card-title">Sesi ${i}</h5>
         ${sudah ? `
           <div class="alert alert-success p-2">
-  ✅ Sudah dikirim: ${sudah}
-  ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
-  <br><small class="text-muted">Isian sesi tidak bisa diedit ulang.</small>
-</div>
+            ✅ Sudah dikirim: ${sudah}
+            ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
+            <br><small class="text-muted">Isian sesi tidak bisa diedit ulang.</small>
+          </div>
         ` : `
-          <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}">${sudah || ""}</textarea>
+          <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}"></textarea>
           <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" />
           <button class="btn btn-success" onclick="submitSesi(${i})">Kirim Sesi ${i}</button>
         `}
@@ -78,48 +85,60 @@ function renderSesiForm() {
 }
 
 async function submitSesi(i) {
+  if (!userData.nama) {
+    return Swal.fire("Tidak Valid", "Silakan login terlebih dahulu", "warning");
+  }
+
   const pekerjaan = document.getElementById(`sesi${i}`).value.trim();
   const file = document.getElementById(`file${i}`).files[0];
   if (!pekerjaan || !file) return Swal.fire("Lengkapi", "Isi uraian & pilih file", "warning");
 
-  Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
+  Swal.fire({ title: "Mengunggah file...", didOpen: () => Swal.showLoading() });
 
   const reader = new FileReader();
   reader.onload = async function () {
     const base64 = reader.result;
     const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${file.name.split('.').pop()}`;
-    const uploadRes = await fetch(WEB_APP_URL + "?action=uploadFile", {
-      method: "POST",
-      body: JSON.stringify({ filename, base64 })
-    });
-    const fileUrl = await uploadRes.text();
+    
+    try {
+      const uploadRes = await fetch(WEB_APP_URL + "?action=uploadFile", {
+        method: "POST",
+        body: JSON.stringify({ filename, base64 })
+      });
 
-    const payload = {
-      nama: userData.nama,
-      nip: userData.nip,
-      subbid: userData.subbid,
-      status: userData.status,
-      golongan: userData.golongan,
-      jabatan: userData.jabatan,
-      [`sesi${i}`]: pekerjaan,
-      [`bukti${i}`]: fileUrl
-    };
+      const fileUrl = await uploadRes.text();
 
-    const res = await fetch(WEB_APP_URL + "?action=submitForm", {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
-    const result = await res.text();
+      Swal.update({ title: "Mengirim data laporan..." });
 
-    if (result === "OK") {
-      Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
-      loadSesiStatus();
-    } else if (result === "HARI_LIBUR") {
-      Swal.fire("Ditolak", "Form hanya aktif Senin–Jumat", "error");
-    } else if (result === "DI_LUAR_JAM") {
-      Swal.fire("Ditolak", "Form hanya bisa diisi pukul 08.00–22.00", "error");
-    } else {
-      Swal.fire("Gagal", "Terjadi kesalahan", "error");
+      const payload = {
+        nama: userData.nama,
+        nip: userData.nip,
+        subbid: userData.subbid,
+        status: userData.status,
+        golongan: userData.golongan,
+        jabatan: userData.jabatan,
+        [`sesi${i}`]: pekerjaan,
+        [`bukti${i}`]: fileUrl
+      };
+
+      const res = await fetch(WEB_APP_URL + "?action=submitForm", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      const result = await res.text();
+
+      if (result === "OK") {
+        Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
+        loadSesiStatus();
+      } else if (result === "HARI_LIBUR") {
+        Swal.fire("Ditolak", "Form hanya aktif Senin–Jumat", "error");
+      } else if (result === "DI_LUAR_JAM") {
+        Swal.fire("Ditolak", "Form hanya bisa diisi pukul 08.00–22.00", "error");
+      } else {
+        Swal.fire("Gagal", "Terjadi kesalahan saat mengirim", "error");
+      }
+    } catch (err) {
+      Swal.fire("Gagal", "Gagal mengunggah file", "error");
     }
   };
   reader.readAsDataURL(file);
