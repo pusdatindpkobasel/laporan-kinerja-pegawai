@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laporan Kinerja Harian</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     .card-sesi {
@@ -63,13 +64,55 @@
       <!-- Card Info Pegawai -->
       <div class="card mb-4">
         <div class="card-body">
-          <h5 class="card-title mb-3">Informasi Pegawai</h5>
-          <p class="mb-1"><strong>NIP:</strong> <span id="nip"></span></p>
-          <p class="mb-1"><strong>Sub Bidang:</strong> <span id="subbid"></span></p>
-          <p class="mb-1"><strong>Status Kepegawaian:</strong> <span id="status"></span></p>
-          <p class="mb-1"><strong>Golongan:</strong> <span id="golongan"></span></p>
-          <p class="mb-0"><strong>Jabatan:</strong> <span id="jabatan"></span></p>
-        </div>
+  <h5 class="card-title mb-3">
+    <i class="bi bi-person-vcard-fill me-2"></i> Informasi Pegawai
+  </h5>
+
+  <div class="row mb-2">
+    <div class="col-4 col-md-3 fw-bold">
+      <i class="bi bi-person-badge me-1 text-primary"></i> NIP
+    </div>
+    <div class="col-8 col-md-9">
+      <span class="badge bg-secondary" id="nip"></span>
+    </div>
+  </div>
+
+  <div class="row mb-2">
+    <div class="col-4 col-md-3 fw-bold">
+      <i class="bi bi-diagram-3 me-1 text-success"></i> Sub Bidang
+    </div>
+    <div class="col-8 col-md-9">
+      <span class="badge bg-info text-dark" id="subbid"></span>
+    </div>
+  </div>
+
+  <div class="row mb-2">
+    <div class="col-4 col-md-3 fw-bold">
+      <i class="bi bi-person-check me-1 text-warning"></i> Status
+    </div>
+    <div class="col-8 col-md-9">
+      <span class="badge bg-warning text-dark" id="status"></span>
+    </div>
+  </div>
+
+  <div class="row mb-2">
+    <div class="col-4 col-md-3 fw-bold">
+      <i class="bi bi-bar-chart-steps me-1 text-danger"></i> Golongan
+    </div>
+    <div class="col-8 col-md-9">
+      <span class="badge bg-danger" id="golongan"></span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-4 col-md-3 fw-bold">
+      <i class="bi bi-award me-1 text-dark"></i> Jabatan
+    </div>
+    <div class="col-8 col-md-9">
+      <span class="badge bg-dark" id="jabatan"></span>
+    </div>
+  </div>
+</div>
       </div>
 
       <!-- Form Sesi -->
