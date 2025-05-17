@@ -227,21 +227,20 @@ const fileUrl = uploadResult.url;
 
     const res = await fetch(WEB_APP_URL + "?action=submitForm", {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
   body: JSON.stringify(payload)
 });
-const result = await res.text();
+const result = await res.json();
 
-    if (result === "OK") {
-      Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
-      loadSesiStatus();
-    } else if (result === "HARI_LIBUR") {
-      Swal.fire("Ditolak", "Form hanya aktif Senin–Jumat", "error");
-    } else if (result === "DI_LUAR_JAM") {
-      Swal.fire("Ditolak", "Form hanya bisa diisi pukul 08.00–22.00", "error");
-    } else {
-      Swal.fire("Gagal", "Terjadi kesalahan", "error");
-    }
+if (result.success) {
+  Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
+  loadSesiStatus();
+} else if (result.message === "HARI_LIBUR") {
+  Swal.fire("Ditolak", "Form hanya aktif Senin–Jumat", "error");
+} else if (result.message === "DI_LUAR_JAM") {
+  Swal.fire("Ditolak", "Form hanya bisa diisi pukul 08.00–22.00", "error");
+} else {
+  Swal.fire("Gagal", "Terjadi kesalahan: " + (result.message || "Unknown"), "error");
+}
   };
   reader.readAsDataURL(file);
 }
