@@ -114,17 +114,22 @@ function renderSesiForm() {
     div.innerHTML = `
       <div class="card-body">
         <h5 class="card-title">Sesi ${i} ${getJamSesi(i)}</h5>
-        ${sudah ? `
-          <div class="alert alert-success p-2">
-            ✅ Sudah dikirim: ${sudah}
-            ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
-            <br><small class="text-muted">Isian sesi tidak bisa diedit ulang.</small>
-          </div>
-        ` : `
-          <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}"></textarea>
-          <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf" />
-          <button class="btn btn-success" onclick="submitSesi(${i})">Kirim Sesi ${i}</button>
-        `}
+       <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}" ${sudah ? "disabled" : ""}>${sudah || ""}</textarea>
+<input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" ${sudah ? "disabled" : ""} />
+<button class="btn ${sudah ? "btn-secondary" : "btn-success"}" ${sudah ? "disabled" : `onclick="submitSesi(${i})"`}>
+  ${sudah ? `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill me-1" viewBox="0 0 16 16">
+      <path d="M8 1a3 3 0 0 0-3 3v3H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-1V4a3 3 0 0 0-3-3z"/>
+    </svg> Terkunci
+  ` : "Kirim Sesi " + i}
+</button>
+${sudah ? `
+  <div class="alert alert-success mt-2 p-2">
+    ✅ Sudah dikirim.
+    ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
+    <br><small class="text-muted">Isian sesi tidak bisa diedit ulang.</small>
+  </div>
+` : ""}
       </div>
     `;
     if (sudah) totalIsi++;
