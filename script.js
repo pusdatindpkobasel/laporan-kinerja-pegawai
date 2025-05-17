@@ -198,30 +198,59 @@ async function submitSesi(i) {
   }
   Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
 
-  const reader = new FileReader();
-  reader.onload = async function () {
-    const base64 = reader.result;
-    const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${file.name.split('.').pop()}`;
-    const uploadRes = await fetch(WEB_APP_URL + "?action=uploadFile", {
+ async function submitSesi(i) {
+  const pekerjaan = document.getElementById(`sesi${i}`).value.trim();
+  const file = document.getElementById(`file${i}`).files[0];
+  if (!pekerjaan || !file) return Swal.fire("Lengkapi", "Isi uraian & pilih file", "warning");
+
+  if (file.size > 2 * 1024 * 1024) {
+    return Swal.fire("File terlalu besar", "Maksimal ukuran file 2MB", "warning");
+  }
+
+  const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!allowedExt.includes(ext)) {
+    return Swal.fire("File tidak diizinkan", "Hanya PDF, JPG, JPEG, PNG", "warning");
+  }
+
+  Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
+
+  // 1. Upload file dengan FormData
+  const formData = new FormData();
+  const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${ext}`;
+  formData.append("file", file);
+  formData.append("filename", filename);
+  formData.append("action", "uploadFile");
+
+  let fileUrl = "";
+  try {
+    const uploadRes = await fetch(WEB_APP_URL, {
       method: "POST",
-      body: JSON.stringify({ filename, base64 })
+      body: formData
     });
-    const fileUrl = await uploadRes.text();
+    fileUrl = await uploadRes.text();
+  } catch (e) {
+    Swal.fire("Gagal", "Upload bukti gagal", "error");
+    return;
+  }
 
-    const payload = {
-      nama: userData.nama,
-      nip: userData.nip,
-      subbid: userData.subbid,
-      status: userData.status,
-      golongan: userData.golongan,
-      jabatan: userData.jabatan,
-      [`sesi${i}`]: pekerjaan,
-      [`bukti${i}`]: fileUrl
-    };
+  // 2. Kirim data sesi menggunakan URLSearchParams
+  const payload = new URLSearchParams();
+  payload.append("action", "submitForm");
+  payload.append("nama", userData.nama);
+  payload.append("nip", userData.nip);
+  payload.append("subbid", userData.subbid);
+  payload.append("status", userData.status);
+  payload.append("golongan", userData.golongan);
+  payload.append("jabatan", userData.jabatan);
+  payload.append(`sesi${i}`, pekerjaan);
+  payload.append(`bukti${i}`, fileUrl);
 
-    const res = await fetch(WEB_APP_URL + "?action=submitForm", {
+  try {
+    const res = await fetch(WEB_APP_URL, {
       method: "POST",
-      body: JSON.stringify(payload)
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: payload.toString()
     });
     const result = await res.text();
 
@@ -235,6 +264,7 @@ async function submitSesi(i) {
     } else {
       Swal.fire("Gagal", "Terjadi kesalahan", "error");
     }
-  };
-  reader.readAsDataURL(file);
+  } catch (e) {
+    Swal.fire("Gagal", "Koneksi atau server error", "error");
+  }
 }
