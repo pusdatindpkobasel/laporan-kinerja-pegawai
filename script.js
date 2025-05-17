@@ -1,8 +1,41 @@
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyUC0sNeyxFMxT9ax4XPq96dHjePen5sCkf5WjQq29vGsme0T6wmO1MYJO_51tat2ZE7g/exec'; 
 
 let pegawaiList = [], userData = {}, sesiStatus = {};
+function autoLogin() {
+  const data = localStorage.getItem("userData");
+  const time = localStorage.getItem("loginTime");
+  if (data && time) {
+    const now = Date.now();
+    const elapsed = now - parseInt(time); // selisih waktu dalam ms
+    const oneDay = 1 * 60 * 60 * 1000; // 24 jam dalam ms
+
+    if (elapsed < oneDay) {
+      userData = JSON.parse(data);
+
+      document.getElementById("nip").textContent = userData.nip;
+      document.getElementById("subbid").textContent = userData.subbid;
+      document.getElementById("status").textContent = userData.status;
+      document.getElementById("golongan").textContent = userData.golongan;
+      document.getElementById("jabatan").textContent = userData.jabatan;
+      document.getElementById("form-wrapper").style.display = "block";
+
+      document.getElementById("nama").value = userData.nama;
+      document.getElementById("nama").disabled = true;
+      document.getElementById("pin").disabled = true;
+
+      setLogoutButton();
+      loadSesiStatus();
+    } else {
+      // Waktu login habis, hapus data
+      localStorage.removeItem("userData");
+      localStorage.removeItem("loginTime");
+    }
+  }
+}
 
 window.onload = () => {
+  autoLogin(); // <- tambahkan ini di awal
+
   fetch(`${WEB_APP_URL}?action=getPegawai&callback=handlePegawai`)
     .then(res => res.text())
     .then(eval)
@@ -21,7 +54,6 @@ function handlePegawai(data) {
   });
 }
 
-
 function login() {
   const nama = document.getElementById("nama").value;
   const pin = document.getElementById("pin").value;
@@ -32,6 +64,11 @@ function login() {
     nama: data[0], nip: data[2], subbid: data[3],
     status: data[4], golongan: data[5], jabatan: data[6]
   };
+  const loginTime = Date.now(); // waktu sekarang (ms sejak epoch)
+
+localStorage.setItem("userData", JSON.stringify(userData));
+localStorage.setItem("loginTime", loginTime.toString());
+  
   document.getElementById("nip").textContent = userData.nip;
   document.getElementById("subbid").textContent = userData.subbid;
   document.getElementById("status").textContent = userData.status;
@@ -52,6 +89,8 @@ function logout() {
   document.getElementById("pin").disabled = false;
   document.getElementById("pin").value = "";
   document.getElementById("form-wrapper").style.display = "none";
+  localStorage.removeItem("userData");
+  localStorage.removeItem("loginTime");
   userData = {};
   sesiStatus = {};
 
