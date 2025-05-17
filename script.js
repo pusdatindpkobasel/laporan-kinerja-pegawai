@@ -39,10 +39,16 @@ function login() {
   document.getElementById("form-wrapper").style.display = "block";
   
   setLogoutButton();
+  // Disable form login setelah login sukses
+  document.getElementById("nama").disabled = true;
+  document.getElementById("pin").disabled = true;
   loadSesiStatus();
 }
 
 function logout() {
+   // Enable form login kembali saat logout
+  document.getElementById("nama").disabled = false;
+  document.getElementById("pin").disabled = false;
   document.getElementById("pin").value = "";
   document.getElementById("form-wrapper").style.display = "none";
   userData = {};
