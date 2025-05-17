@@ -127,6 +127,11 @@ async function submitSesi(i) {
   if (file.size > 2 * 1024 * 1024) {
     return Swal.fire("File terlalu besar", "Maksimal ukuran file 2MB", "warning");
   }
+  const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!allowedExt.includes(ext)) {
+    return Swal.fire("File tidak diizinkan", "Hanya PDF, JPG, JPEG, PNG", "warning");
+  }
   Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
 
   const reader = new FileReader();
