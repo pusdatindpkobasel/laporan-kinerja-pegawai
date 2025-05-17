@@ -187,6 +187,7 @@ ${sudah ? `
 async function submitSesi(i) {
   const pekerjaan = document.getElementById(`sesi${i}`).value.trim();
   const file = document.getElementById(`file${i}`).files[0];
+  
   if (!pekerjaan || !file) return Swal.fire("Lengkapi", "Isi uraian & pilih file", "warning");
   if (file.size > 2 * 1024 * 1024) {
     return Swal.fire("File terlalu besar", "Maksimal ukuran file 2MB", "warning");
@@ -203,10 +204,15 @@ async function submitSesi(i) {
     const base64 = reader.result;
     const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${file.name.split('.').pop()}`;
     const uploadRes = await fetch(WEB_APP_URL + "?action=uploadFile", {
-      method: "POST",
-      body: JSON.stringify({ filename, base64 })
-    });
-    const fileUrl = await uploadRes.text();
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ filename, base64 })
+});
+const uploadResult = await uploadRes.json();
+if (!uploadResult.success) {
+  return Swal.fire("Gagal upload file", uploadResult.message || "Error", "error");
+}
+const fileUrl = uploadResult.url;
 
     const payload = {
       nama: userData.nama,
@@ -220,10 +226,11 @@ async function submitSesi(i) {
     };
 
     const res = await fetch(WEB_APP_URL + "?action=submitForm", {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
-    const result = await res.text();
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload)
+});
+const result = await res.text();
 
     if (result === "OK") {
       Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
