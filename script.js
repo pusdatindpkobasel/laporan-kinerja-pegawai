@@ -31,42 +31,49 @@ function login() {
     nama: data[0], nip: data[2], subbid: data[3],
     status: data[4], golongan: data[5], jabatan: data[6]
   };
-
   document.getElementById("nip").textContent = userData.nip;
   document.getElementById("subbid").textContent = userData.subbid;
   document.getElementById("status").textContent = userData.status;
   document.getElementById("golongan").textContent = userData.golongan;
   document.getElementById("jabatan").textContent = userData.jabatan;
   document.getElementById("form-wrapper").style.display = "block";
-
-  const loginBtn = document.getElementById("login-btn");
-  loginBtn.textContent = "Logout";
-  loginBtn.className = "btn btn-danger";
-  loginBtn.onclick = logout;
-
+  
+  setLogoutButton();
   loadSesiStatus();
 }
 
 function logout() {
+  document.getElementById("pin").value = "";
+  document.getElementById("form-wrapper").style.display = "none";
   userData = {};
   sesiStatus = {};
 
-  document.getElementById("form-wrapper").style.display = "none";
-
-  document.getElementById("nip").textContent = "";
-  document.getElementById("subbid").textContent = "";
-  document.getElementById("status").textContent = "";
-  document.getElementById("golongan").textContent = "";
-  document.getElementById("jabatan").textContent = "";
-  document.getElementById("sesi-form").innerHTML = "";
-
-  document.getElementById("nama").value = "";
-  document.getElementById("pin").value = "";
-
-  const loginBtn = document.getElementById("login-btn");
-  loginBtn.textContent = "Login";
-  loginBtn.className = "btn btn-primary";
+  const loginBtn = document.getElementById("login-button");
+  loginBtn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shield-lock" viewBox="0 0 16 16">
+      <path d="M5.072 0a1.5 1.5 0 0 0-.832.252l-3 2A1.5 1.5 0 0 0 .5 3.5v3c0 4.418 3.582 8 8 8s8-3.582 8-8v-3a1.5 1.5 0 0 0-.74-1.276l-3-2A1.5 1.5 0 0 0 10.928 0H5.072z"/>
+      <path d="M8 5a1 1 0 0 1 1 1v1.5a1 1 0 0 1-2 0V6a1 1 0 0 1 1-1z"/>
+    </svg>
+    Login
+  `;
+  loginBtn.classList.remove("btn-danger");
+  loginBtn.classList.add("btn-dark");
   loginBtn.onclick = login;
+}
+
+function setLogoutButton() {
+  const loginBtn = document.getElementById("login-button");
+  loginBtn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M6 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-1 0v-9A.5.5 0 0 1 6 3z"/>
+      <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 1 0-.708L13.207 6.293a.5.5 0 1 1 .707.707L12.707 8l1.207 1.207a.5.5 0 0 1-.707.707l-1.353-1.353z"/>
+      <path fill-rule="evenodd" d="M4.5 8a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/>
+    </svg>
+    Logout
+  `;
+  loginBtn.classList.remove("btn-dark");
+  loginBtn.classList.add("btn-danger");
+  loginBtn.onclick = logout;
 }
 
 function loadSesiStatus() {
