@@ -7,6 +7,10 @@ window.onload = () => {
     .then(res => res.text())
     .then(eval)
     .catch(err => Swal.fire('Error', 'Gagal memuat data pegawai', 'error'));
+  document.getElementById("pin").addEventListener("keyup", function(event) {
+  if (event.key === "Enter") {
+    login();
+  }
 };
 
 function handlePegawai(data) {
@@ -123,7 +127,9 @@ async function submitSesi(i) {
   const pekerjaan = document.getElementById(`sesi${i}`).value.trim();
   const file = document.getElementById(`file${i}`).files[0];
   if (!pekerjaan || !file) return Swal.fire("Lengkapi", "Isi uraian & pilih file", "warning");
-
+  if (file.size > 2 * 1024 * 1024) {
+    return Swal.fire("File terlalu besar", "Maksimal ukuran file 2MB", "warning");
+  }
   Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
 
   const reader = new FileReader();
