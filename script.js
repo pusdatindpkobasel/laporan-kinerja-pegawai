@@ -32,17 +32,48 @@ function login() {
     status: data[4], golongan: data[5], jabatan: data[6]
   };
 
-  // Tampilkan identitas
+  // Tampilkan identitas dan form
   document.getElementById("nip").textContent = userData.nip;
   document.getElementById("subbid").textContent = userData.subbid;
   document.getElementById("status").textContent = userData.status;
   document.getElementById("golongan").textContent = userData.golongan;
   document.getElementById("jabatan").textContent = userData.jabatan;
-
-  // Tampilkan nama di header
   document.getElementById("user-name-display").textContent = `👤 ${userData.nama}`;
   document.getElementById("form-wrapper").style.display = "block";
-  document.getElementById("login-form").style.display = "none";
+
+  // Ubah tombol Login jadi Logout
+  const loginBtn = document.getElementById("login-btn");
+  loginBtn.textContent = "Logout";
+  loginBtn.className = "btn btn-danger";
+  loginBtn.onclick = logout;
+
+  loadSesiStatus();
+}
+
+function logout() {
+  userData = {};
+  sesiStatus = {};
+  document.getElementById("form-wrapper").style.display = "none";
+  document.getElementById("user-name-display").textContent = "";
+
+  // Reset tombol jadi Login kembali
+  const loginBtn = document.getElementById("login-btn");
+  loginBtn.textContent = "Login";
+  loginBtn.className = "btn btn-primary";
+  loginBtn.onclick = login;
+
+  // Reset select & pin
+  document.getElementById("nama").value = "";
+  document.getElementById("pin").value = "";
+
+  // Reset identitas
+  document.getElementById("nip").textContent = "";
+  document.getElementById("subbid").textContent = "";
+  document.getElementById("status").textContent = "";
+  document.getElementById("golongan").textContent = "";
+  document.getElementById("jabatan").textContent = "";
+
+  document.getElementById("sesi-form").innerHTML = "";
 
   loadSesiStatus();
 }
