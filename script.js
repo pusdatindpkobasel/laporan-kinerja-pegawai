@@ -38,11 +38,15 @@ window.onload = () => {
 
         setLogoutButton();
         loadSesiStatus();
+
+        document.getElementById("dashboard-button").style.display = "inline-flex";
       }
     }, 100);
+  } else {
+    document.getElementById("dashboard-button").style.display = "none";
   }
 
-  // Listener enter di input PIN (selalu aktif)
+  // Listener enter di input PIN
   document.getElementById('pin').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
