@@ -154,8 +154,10 @@ async function submitSesi(i) {
   if (!allowedExt.includes(ext)) {
     return Swal.fire("File tidak diizinkan", "Hanya PDF, JPG, JPEG, PNG", "warning");
   }
-  
+  const submitBtn = document.querySelector(`#submit-btn-${i}`); // pastikan ada id untuk tombol
+  submitBtn.disabled = true;
   Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
+  submitBtn.disabled = false;
   
   const reader = new FileReader();
   reader.onload = async function () {
