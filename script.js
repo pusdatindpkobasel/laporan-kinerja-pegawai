@@ -20,7 +20,31 @@ function handlePegawai(data) {
     namaSelect.appendChild(opt);
   });
 }
+function showRemainingTime() {
+  const now = new Date();
+  const closeTime = new Date();
+  closeTime.setHours(22, 0, 0, 0); // jam 22:00:00
 
+  if (now >= closeTime) {
+    Swal.fire({
+      icon: 'info',
+      title: 'Waktu Pengisian Telah Berakhir',
+      text: 'Form pengisian sudah ditutup sampai jam 8 pagi besok.'
+    });
+    // kamu juga bisa disable form di sini kalau mau
+    return;
+  }
+
+  const diffMs = closeTime - now;
+  const diffH = Math.floor(diffMs / 3600000); // jam
+  const diffM = Math.floor((diffMs % 3600000) / 60000); // menit
+
+  Swal.fire({
+    icon: 'info',
+    title: 'Sisa Waktu Pengisian',
+    text: `Anda memiliki waktu ${diffH} jam ${diffM} menit untuk mengisi form hari ini.`
+  });
+}
 
 function login() {
   const nama = document.getElementById("nama").value;
@@ -40,9 +64,10 @@ function login() {
   document.getElementById("form-wrapper").style.display = "block";
   
   setLogoutButton();
-  // Disable form login setelah login sukses
   document.getElementById("nama").disabled = true;
   document.getElementById("pin").disabled = true;
+
+  showRemainingTime(); // Panggil fungsi notifikasi sisa waktu di sini
   loadSesiStatus();
 }
 
