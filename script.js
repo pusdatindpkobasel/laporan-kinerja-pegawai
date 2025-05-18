@@ -7,6 +7,13 @@ window.onload = () => {
     .then(res => res.text())
     .then(eval)
     .catch(err => Swal.fire('Error', 'Gagal memuat data pegawai', 'error'));
+  // tambahkan listener enter di input PIN
+  document.getElementById('pin').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      login();
+    }
+  });
 };
 
 function handlePegawai(data) {
