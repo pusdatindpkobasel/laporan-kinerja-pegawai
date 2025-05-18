@@ -1,60 +1,83 @@
+Index.html
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ProjectL - Laporan Kinerja</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Laporan Kinerja Harian</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    body { background-color: #f8f9fa; }
-    .card-session { border-left: 4px solid #0d6efd; }
-    .filled { border-left-color: #198754 !important; background-color: #e9f9ee; }
+    .card-sesi {
+      margin-bottom: 1rem;
+    }
+    @media (min-width: 768px) {
+      .login-dashboard-row {
+        flex-direction: row;
+        align-items: flex-end;
+      }
+    }
+    @media (max-width: 767.98px) {
+      .login-dashboard-row {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
-<div class="container my-5">
-  <div class="text-center mb-4">
-    <h2>ProjectL - Laporan Kinerja Harian</h2>
-    <button id="dashboardBtn" class="btn btn-secondary btn-sm d-none">Dashboard</button>
-  </div>
+  <div class="container py-5">
+    <!-- Header dengan Judul dan Deskripsi Panduan -->
+    <header class="text-center mb-5">
+      <h1 class="display-4">Laporan Kinerja Pegawai</h1>
+      <p class="lead">Sistem laporan harian untuk mencatat aktivitas pegawai setiap hari. Pilih nama, masukkan PIN, dan kirimkan laporan sesi Anda dengan mengisi uraian pekerjaan dan mengunggah bukti dukung.</p>
+    </header>
 
-  <!-- Card Login -->
-  <div class="card mx-auto" style="max-width: 500px;" id="loginCard">
-    <div class="card-body">
-      <h5 class="card-title">Login Pegawai</h5>
-      <div class="mb-3">
-        <label for="nama" class="form-label">Nama</label>
-        <select class="form-select" id="nama" required></select>
-      </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password" required />
-      </div>
-      <button class="btn btn-primary" id="loginBtn">Login</button>
-      <button class="btn btn-danger d-none" id="logoutBtn">Logout</button>
-    </div>
-  </div>
+    <div class="container my-4">
+      <!-- Login + Dashboard Row -->
+      <form onsubmit="login(); return false;" class="d-flex flex-wrap gap-2 justify-content-center justify-content-sm-between align-items-center">
+        <select id="nama" class="form-select" style="min-width: 180px" required></select>
+        <input type="password" id="pin" class="form-control" placeholder="PIN" style="min-width: 100px" required />
+        <div class="d-flex gap-2">
+          <!-- Tombol Login -->
+          <button type="submit" class="btn btn-dark d-flex align-items-center gap-1" id="login-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shield-lock" viewBox="0 0 16 16">
+              <path d="M5.5 8a1.5 1.5 0 1 1 3 0v1.086a1.5 1.5 0 1 1-3 0V8zm1.5-3a1 1 0 0 0-1 1v1.086a2.5 2.5 0 1 0 2 0V6a1 1 0 0 0-1-1z"/>
+              <path d="M8 0c-.69 0-1.37.116-2.015.337a4.992 4.992 0 0 0-1.63.965C3.373 2.088 2.25 3.375 1.56 5.001a9.26 9.26 0 0 0-.498 2.662c0 3.122 1.597 5.563 3.578 6.92C6.382 15.773 7.176 16 8 16s1.618-.227 2.36-.417c1.981-1.356 3.578-3.797 3.578-6.92a9.26 9.26 0 0 0-.498-2.662c-.69-1.626-1.813-2.913-2.795-3.699a4.992 4.992 0 0 0-1.63-.965A6.52 6.52 0 0 0 8 0z"/>
+            </svg>
+            Login
+          </button>
 
-  <!-- Card Laporan -->
-  <div class="card mt-4 d-none" id="laporanCard">
-    <div class="card-body">
-      <h5 class="card-title">Form Laporan Kinerja</h5>
-      <form id="laporanForm">
-        <div class="row g-3">
-          <!-- Sesi 1–7 -->
-          <div class="col-12">
-            <div id="sesiContainer"></div>
-          </div>
-          <div class="text-end">
-            <button type="submit" class="btn btn-success">Kirim Laporan</button>
-          </div>
+          <!-- Tombol Dashboard -->
+          <a href="https://lookerstudio.google.com/reporting/xyz" target="_blank" class="btn btn-success d-flex align-items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+              <path d="M0 0h1v15h15v1H0V0z"/>
+              <path d="M10 10h1v3h-1v-3zM7 6h1v7H7V6zM4 9h1v4H4V9z"/>
+            </svg>
+            Dashboard
+          </a>
         </div>
       </form>
     </div>
-  </div>
-</div>
 
-<script src="app.js"></script>
+    <!-- Form Wrapper -->
+    <div id="form-wrapper" style="display:none;">
+      <!-- Card Info Pegawai -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Informasi Pegawai</h5>
+          <p class="mb-1"><strong>NIP:</strong> <span id="nip"></span></p>
+          <p class="mb-1"><strong>Sub Bidang:</strong> <span id="subbid"></span></p>
+          <p class="mb-1"><strong>Status Kepegawaian:</strong> <span id="status"></span></p>
+          <p class="mb-1"><strong>Golongan:</strong> <span id="golongan"></span></p>
+          <p class="mb-0"><strong>Jabatan:</strong> <span id="jabatan"></span></p>
+        </div>
+      </div>
+
+      <!-- Form Sesi -->
+      <div id="sesi-form"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
