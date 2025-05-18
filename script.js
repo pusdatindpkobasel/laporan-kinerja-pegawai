@@ -155,42 +155,49 @@ async function submitSesi(i) {
   Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
 
   const reader = new FileReader();
-  reader.onload = async function () {
-    const base64 = reader.result;
-    const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${file.name.split('.').pop()}`;
-    const uploadRes = await fetch(WEB_APP_URL + "?action=uploadFile", {
-      method: "POST",
-      body: JSON.stringify({ filename, base64 })
-    });
-    const fileUrl = await uploadRes.text();
+reader.onload = async function () {
+  const base64 = reader.result;
+  const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${file.name.split('.').pop()}`;
 
-    const payload = {
-      nama: userData.nama,
-      nip: userData.nip,
-      subbid: userData.subbid,
-      status: userData.status,
-      golongan: userData.golongan,
-      jabatan: userData.jabatan,
-      [`sesi${i}`]: pekerjaan,
-      [`bukti${i}`]: fileUrl
-    };
+  const uploadRes = await fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "uploadFile", filename, base64 })
+  });
+  const uploadData = await uploadRes.json();
 
-    const res = await fetch(WEB_APP_URL + "?action=submitForm", {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
-    const result = await res.text();
+  if (!uploadData.success) {
+    Swal.fire("Gagal", "Upload file gagal: " + uploadData.message, "error");
+    return;
+  }
 
-    if (result === "OK") {
-      Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
-      loadSesiStatus();
-    } else if (result === "HARI_LIBUR") {
-      Swal.fire("Ditolak", "Form hanya aktif Senin–Jumat", "error");
-    } else if (result === "DI_LUAR_JAM") {
-      Swal.fire("Ditolak", "Form hanya bisa diisi pukul 08.00–22.00", "error");
-    } else {
-      Swal.fire("Gagal", "Terjadi kesalahan", "error");
-    }
+  const payload = {
+    action: "submitForm",
+    nama: userData.nama,
+    nip: userData.nip,
+    subbid: userData.subbid,
+    status: userData.status,
+    golongan: userData.golongan,
+    jabatan: userData.jabatan,
+    sesiKey: `sesi${i}`,
+    buktiKey: `bukti${i}`,
+    sesiVal: pekerjaan,
+    buktiVal: uploadData.url
   };
-  reader.readAsDataURL(file);
-}
+
+  const res = await fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  const result = await res.json();
+
+  if (result.success) {
+    Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
+    loadSesiStatus();
+  } else {
+    Swal.fire("Gagal", "Terjadi kesalahan: " + (result.message || ""), "error");
+  }
+};
+reader.readAsDataURL(file);
+
