@@ -143,7 +143,7 @@ function renderSesiForm() {
 async function submitSesi(i) {
   const pekerjaan = document.getElementById(`sesi${i}`).value.trim();
   const file = document.getElementById(`file${i}`).files[0];
-  if (!pekerjaan || !file) return Swal.fire("Lengkapi", "Isi uraian & pilih file", "warning");
+  if (!pekerjaan || !file) return ;
   if (file.size > 2 * 1024 * 1024) {
     return Swal.fire("File terlalu besar", "Maksimal ukuran file 2MB", "warning");
   }
