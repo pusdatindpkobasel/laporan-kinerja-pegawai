@@ -69,47 +69,56 @@
     </div>
 
     <!-- Form Wrapper -->
-    <div id="form-wrapper" style="display:none;">
-      <!-- Card Info Pegawai -->
-      <div class="card mb-4">
+<div id="form-wrapper" style="display:none;">
+  <div class="row mb-4">
+    <!-- Card Info Pegawai -->
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
         <div class="card-body">
           <h5 class="card-title mb-3">Informasi Pegawai</h5>
 
-<div class="row mb-1">
-  <div class="col-4 fw-bold">NIP:</div>
-  <div class="col-8" id="nip"></div>
-</div>
+          <div class="row mb-1">
+            <div class="col-4 fw-bold">NIP:</div>
+            <div class="col-8" id="nip"></div>
+          </div>
 
-<div class="row mb-1">
-  <div class="col-4 fw-bold">Sub Bidang:</div>
-  <div class="col-8" id="subbid"></div>
-</div>
+          <div class="row mb-1">
+            <div class="col-4 fw-bold">Sub Bidang:</div>
+            <div class="col-8" id="subbid"></div>
+          </div>
 
-<div class="row mb-1">
-  <div class="col-4 fw-bold">Status Kepegawaian:</div>
-  <div class="col-8" id="status"></div>
-</div>
+          <div class="row mb-1">
+            <div class="col-4 fw-bold">Status Kepegawaian:</div>
+            <div class="col-8" id="status"></div>
+          </div>
 
-<div class="row mb-1">
-  <div class="col-4 fw-bold">Golongan:</div>
-  <div class="col-8" id="golongan"></div>
-</div>
+          <div class="row mb-1">
+            <div class="col-4 fw-bold">Golongan:</div>
+            <div class="col-8" id="golongan"></div>
+          </div>
 
-<div class="row mb-0">
-  <div class="col-4 fw-bold">Jabatan:</div>
-  <div class="col-8" id="jabatan"></div>
-</div>
-
+          <div class="row mb-0">
+            <div class="col-4 fw-bold">Jabatan:</div>
+            <div class="col-8" id="jabatan"></div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Form Sesi -->
-<div id="sesi-status"></div>
-      <div id="sesi-form"></div>
-     
+    <!-- Kalender Heatmap Card -->
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Kalender Heatmap Laporan</h5>
+          <!-- Tempat kalender heatmap -->
+          <div id="heatmap-calendar" style="height: 300px;">
+            <!-- Kalender akan di-render di sini -->
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script src="script.js"></script>
-</body>
-</html>
+  <div id="sesi-status"></div>
+  <div id="sesi-form"></div>
+</div>
