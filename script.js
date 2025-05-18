@@ -1,41 +1,9 @@
+REVISI RENDER SESI
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyUC0sNeyxFMxT9ax4XPq96dHjePen5sCkf5WjQq29vGsme0T6wmO1MYJO_51tat2ZE7g/exec'; 
 
 let pegawaiList = [], userData = {}, sesiStatus = {};
-function autoLogin() {
-  const data = localStorage.getItem("userData");
-  const time = localStorage.getItem("loginTime");
-  if (data && time) {
-    const now = Date.now();
-    const elapsed = now - parseInt(time); // selisih waktu dalam ms
-    const oneDay = 1 * 60 * 60 * 1000; // 24 jam dalam ms
-
-    if (elapsed < oneDay) {
-      userData = JSON.parse(data);
-
-      document.getElementById("nip").textContent = userData.nip;
-      document.getElementById("subbid").textContent = userData.subbid;
-      document.getElementById("status").textContent = userData.status;
-      document.getElementById("golongan").textContent = userData.golongan;
-      document.getElementById("jabatan").textContent = userData.jabatan;
-      document.getElementById("form-wrapper").style.display = "block";
-
-      document.getElementById("nama").value = userData.nama;
-      document.getElementById("nama").disabled = true;
-      document.getElementById("pin").disabled = true;
-
-      setLogoutButton();
-      loadSesiStatus();
-    } else {
-      // Waktu login habis, hapus data
-      localStorage.removeItem("userData");
-      localStorage.removeItem("loginTime");
-    }
-  }
-}
 
 window.onload = () => {
-  autoLogin(); // <- tambahkan ini di awal
-
   fetch(`${WEB_APP_URL}?action=getPegawai&callback=handlePegawai`)
     .then(res => res.text())
     .then(eval)
@@ -54,6 +22,7 @@ function handlePegawai(data) {
   });
 }
 
+
 function login() {
   const nama = document.getElementById("nama").value;
   const pin = document.getElementById("pin").value;
@@ -64,11 +33,6 @@ function login() {
     nama: data[0], nip: data[2], subbid: data[3],
     status: data[4], golongan: data[5], jabatan: data[6]
   };
-  const loginTime = Date.now(); // waktu sekarang (ms sejak epoch)
-
-localStorage.setItem("userData", JSON.stringify(userData));
-localStorage.setItem("loginTime", loginTime.toString());
-  
   document.getElementById("nip").textContent = userData.nip;
   document.getElementById("subbid").textContent = userData.subbid;
   document.getElementById("status").textContent = userData.status;
@@ -89,8 +53,6 @@ function logout() {
   document.getElementById("pin").disabled = false;
   document.getElementById("pin").value = "";
   document.getElementById("form-wrapper").style.display = "none";
-  localStorage.removeItem("userData");
-  localStorage.removeItem("loginTime");
   userData = {};
   sesiStatus = {};
 
@@ -153,22 +115,17 @@ function renderSesiForm() {
     div.innerHTML = `
       <div class="card-body">
         <h5 class="card-title">Sesi ${i} ${getJamSesi(i)}</h5>
-       <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}" ${sudah ? "disabled" : ""}>${sudah || ""}</textarea>
-<input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" ${sudah ? "disabled" : ""} />
-<button class="btn ${sudah ? "btn-secondary" : "btn-success"}" ${sudah ? "disabled" : `onclick="submitSesi(${i})"`}>
-  ${sudah ? `
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill me-1" viewBox="0 0 16 16">
-      <path d="M8 1a3 3 0 0 0-3 3v3H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-1V4a3 3 0 0 0-3-3z"/>
-    </svg> Terkunci
-  ` : "Kirim Sesi " + i}
-</button>
-${sudah ? `
-  <div class="alert alert-success mt-2 p-2">
-    ✅ Sudah dikirim.
-    ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
-    <br><small class="text-muted">Isian sesi tidak bisa diedit ulang.</small>
-  </div>
-` : ""}
+        ${sudah ? `
+          <div class="alert alert-success p-2">
+            ✅ Sudah dikirim: ${sudah}
+            ${bukti ? `<br><a href="${bukti}" target="_blank">📎 Lihat Bukti</a>` : ""}
+            <br><small class="text-muted">Isian sesi tidak bisa diedit ulang.</small>
+          </div>
+        ` : `
+          <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}"></textarea>
+          <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf" />
+          <button class="btn btn-success" onclick="submitSesi(${i})">Kirim Sesi ${i}</button>
+        `}
       </div>
     `;
     if (sudah) totalIsi++;
@@ -185,70 +142,56 @@ ${sudah ? `
 }
 
 async function submitSesi(i) {
-  const sesiInput = document.getElementById(`sesi${i}`);
-  const buktiInput = document.getElementById(`bukti${i}`);
-
-  const isi = sesiInput.value.trim();
-  const file = buktiInput.files[0];
-
-  if (!isi || !file) {
-    Swal.fire("Lengkapi", "Isi uraian dan pilih bukti", "warning");
-    return;
+  const pekerjaan = document.getElementById(`sesi${i}`).value.trim();
+  const file = document.getElementById(`file${i}`).files[0];
+  if (!pekerjaan || !file) return Swal.fire("Lengkapi", "Isi uraian & pilih file", "warning");
+  if (file.size > 2 * 1024 * 1024) {
+    return Swal.fire("File terlalu besar", "Maksimal ukuran file 2MB", "warning");
   }
+  const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!allowedExt.includes(ext)) {
+    return Swal.fire("File tidak diizinkan", "Hanya PDF, JPG, JPEG, PNG", "warning");
+  }
+  Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
 
-  try {
-    // Upload bukti ke Apps Script
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("nama", currentUser.nama);
-    formData.append("nip", currentUser.nip);
-    formData.append("subbid", currentUser.subbid);
-
-    const uploadRes = await fetch(WEB_APP_URL + "?action=uploadBukti", {
+  const reader = new FileReader();
+  reader.onload = async function () {
+    const base64 = reader.result;
+    const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${file.name.split('.').pop()}`;
+    const uploadRes = await fetch(WEB_APP_URL + "?action=uploadFile", {
       method: "POST",
-      body: formData
+      body: JSON.stringify({ filename, base64 })
     });
+    const fileUrl = await uploadRes.text();
 
-    const uploadResult = await uploadRes.json();
-
-    if (!uploadResult.success) {
-      Swal.fire("Gagal Upload", uploadResult.message || "Tidak bisa upload file", "error");
-      return;
-    }
-
-    const linkBukti = uploadResult.url;
-
-    // Kirim data sesi + link bukti ke Spreadsheet
     const payload = {
-      action: "submitForm",
-      nama: currentUser.nama,
-      nip: currentUser.nip,
-      subbid: currentUser.subbid,
-      status: currentUser.status,
-      golongan: currentUser.golongan,
-      jabatan: currentUser.jabatan,
-      [`sesi${nomorSesi}`]: isi,
-      [`bukti${nomorSesi}`]: linkBukti
+      nama: userData.nama,
+      nip: userData.nip,
+      subbid: userData.subbid,
+      status: userData.status,
+      golongan: userData.golongan,
+      jabatan: userData.jabatan,
+      [`sesi${i}`]: pekerjaan,
+      [`bukti${i}`]: fileUrl
     };
 
-    const res = await fetch(WEB_APP_URL, {
+    const res = await fetch(WEB_APP_URL + "?action=submitForm", {
       method: "POST",
       body: JSON.stringify(payload)
     });
+    const result = await res.text();
 
-    const result = await res.json();
-
-    if (result.success) {
-      Swal.fire("Berhasil", `Sesi ${nomorSesi} berhasil dikirim`, "success");
+    if (result === "OK") {
+      Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
       loadSesiStatus();
+    } else if (result === "HARI_LIBUR") {
+      Swal.fire("Ditolak", "Form hanya aktif Senin–Jumat", "error");
+    } else if (result === "DI_LUAR_JAM") {
+      Swal.fire("Ditolak", "Form hanya bisa diisi pukul 08.00–22.00", "error");
     } else {
-      Swal.fire("Gagal", result.message || "Terjadi kesalahan", "error");
+      Swal.fire("Gagal", "Terjadi kesalahan", "error");
     }
-  } catch (error) {
-    console.error(error);
-    Swal.fire("Error", "Terjadi kesalahan koneksi", "error");
-  }
-}
-
+  };
   reader.readAsDataURL(file);
 }
