@@ -21,7 +21,6 @@ function handlePegawai(data) {
   });
 }
 
-
 function login() {
   const nama = document.getElementById("nama").value;
   const pin = document.getElementById("pin").value;
@@ -92,28 +91,17 @@ function loadSesiStatus() {
     });
 }
 
-function getJamSesi(i) {
-  const jam = [
-    "(07.30–08.30)", "(08.30–09.30)", "(09.30–10.30)", "(10.30–12.00)",
-    "(13.00–14.00)", "(14.00–15.00)", "(15.00–16.00)"
-  ];
-  return jam[i - 1] || "";
-}
-
 function renderSesiForm() {
   const wrapper = document.getElementById("sesi-form");
   wrapper.innerHTML = "";
-
-  let totalIsi = 0; // Untuk indikator kelengkapan
-
   for (let i = 1; i <= 7; i++) {
     const sudah = sesiStatus[`sesi${i}`];
     const bukti = sesiStatus[`bukti${i}`];
     const div = document.createElement("div");
-    div.className = "card card-sesi mb-3";
+    div.className = "card card-sesi";
     div.innerHTML = `
       <div class="card-body">
-        <h5 class="card-title">Sesi ${i} ${getJamSesi(i)}</h5>
+        <h5 class="card-title">Sesi ${i}</h5>
         ${sudah ? `
           <div class="alert alert-success p-2">
             ✅ Sudah dikirim: ${sudah}
@@ -121,83 +109,60 @@ function renderSesiForm() {
             <br><small class="text-muted">Isian sesi tidak bisa diedit ulang.</small>
           </div>
         ` : `
-          <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}"></textarea>
-          <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf" />
+          <textarea id="sesi${i}" class="form-control mb-2" placeholder="Uraian pekerjaan sesi ${i}">${sudah || ""}</textarea>
+          <input type="file" id="file${i}" class="form-control mb-2" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" />
           <button class="btn btn-success" onclick="submitSesi(${i})">Kirim Sesi ${i}</button>
         `}
       </div>
     `;
-    if (sudah) totalIsi++;
     wrapper.appendChild(div);
   }
-
-  // Indikator kelengkapan sesi
-  const statusEl = document.getElementById("sesi-status");
-  statusEl.innerHTML = `
-    <div class="alert alert-info text-center">
-      🔄 ${totalIsi} dari 7 sesi telah diisi
-    </div>
-  `;
 }
 
 async function submitSesi(i) {
   const pekerjaan = document.getElementById(`sesi${i}`).value.trim();
   const file = document.getElementById(`file${i}`).files[0];
   if (!pekerjaan || !file) return Swal.fire("Lengkapi", "Isi uraian & pilih file", "warning");
-  if (file.size > 2 * 1024 * 1024) {
-    return Swal.fire("File terlalu besar", "Maksimal ukuran file 2MB", "warning");
-  }
-  const allowedExt = ['pdf', 'jpg', 'jpeg', 'png'];
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (!allowedExt.includes(ext)) {
-    return Swal.fire("File tidak diizinkan", "Hanya PDF, JPG, JPEG, PNG", "warning");
-  }
+
   Swal.fire({ title: "Mengirim...", didOpen: () => Swal.showLoading() });
 
   const reader = new FileReader();
-reader.onload = async function () {
-  const base64 = reader.result;
-  const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${file.name.split('.').pop()}`;
+  reader.onload = async function () {
+    const base64 = reader.result;
+    const filename = `${userData.nama}_Sesi${i}_${new Date().toISOString().split("T")[0]}.${file.name.split('.').pop()}`;
+    const uploadRes = await fetch(WEB_APP_URL + "?action=uploadFile", {
+      method: "POST",
+      body: JSON.stringify({ filename, base64 })
+    });
+    const fileUrl = await uploadRes.text();
 
-  const uploadRes = await fetch(WEB_APP_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "uploadFile", filename, base64 })
-  });
-  const uploadData = await uploadRes.json();
+    const payload = {
+      nama: userData.nama,
+      nip: userData.nip,
+      subbid: userData.subbid,
+      status: userData.status,
+      golongan: userData.golongan,
+      jabatan: userData.jabatan,
+      [`sesi${i}`]: pekerjaan,
+      [`bukti${i}`]: fileUrl
+    };
 
-  if (!uploadData.success) {
-    Swal.fire("Gagal", "Upload file gagal: " + uploadData.message, "error");
-    return;
-  }
+    const res = await fetch(WEB_APP_URL + "?action=submitForm", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+    const result = await res.text();
 
-  const payload = {
-    action: "submitForm",
-    nama: userData.nama,
-    nip: userData.nip,
-    subbid: userData.subbid,
-    status: userData.status,
-    golongan: userData.golongan,
-    jabatan: userData.jabatan,
-    sesiKey: `sesi${i}`,
-    buktiKey: `bukti${i}`,
-    sesiVal: pekerjaan,
-    buktiVal: uploadData.url
+    if (result === "OK") {
+      Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
+      loadSesiStatus();
+    } else if (result === "HARI_LIBUR") {
+      Swal.fire("Ditolak", "Form hanya aktif Senin–Jumat", "error");
+    } else if (result === "DI_LUAR_JAM") {
+      Swal.fire("Ditolak", "Form hanya bisa diisi pukul 08.00–22.00", "error");
+    } else {
+      Swal.fire("Gagal", "Terjadi kesalahan", "error");
+    }
   };
-
-  const res = await fetch(WEB_APP_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  const result = await res.json();
-
-  if (result.success) {
-    Swal.fire("Berhasil", "Sesi berhasil dikirim", "success");
-    loadSesiStatus();
-  } else {
-    Swal.fire("Gagal", "Terjadi kesalahan: " + (result.message || ""), "error");
-  }
-};
-reader.readAsDataURL(file);
-
+  reader.readAsDataURL(file);
+}
