@@ -114,7 +114,7 @@ function login() {
   setLogoutButton();
   document.getElementById("nama").disabled = true;
   document.getElementById("pin").disabled = true;
-
+ document.getElementById("dashboard-button").style.display = "inline-flex";
   showRemainingTime(); // Panggil fungsi notifikasi sisa waktu di sini
   loadSesiStatus();
 }
@@ -155,6 +155,7 @@ function setLogoutButton() {
   loginBtn.classList.remove("btn-dark");
   loginBtn.classList.add("btn-danger");
   loginBtn.onclick = logout;
+   document.getElementById("dashboard-button").style.display = "none";
 }
 
 function loadSesiStatus() {
