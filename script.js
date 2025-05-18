@@ -91,6 +91,21 @@ function showRemainingTime() {
     text: `Anda memiliki waktu ${diffH} jam ${diffM} menit untuk mengisi form hari ini.`
   });
 }
+function showDashboardButton() {
+  const btn = document.getElementById("dashboard-button");
+  if (btn) {
+    btn.classList.remove("d-none");
+    btn.classList.add("d-inline-flex");
+  }
+}
+
+function hideDashboardButton() {
+  const btn = document.getElementById("dashboard-button");
+  if (btn) {
+    btn.classList.add("d-none");
+    btn.classList.remove("d-inline-flex");
+  }
+}
 
 function login() {
   const nama = document.getElementById("nama").value;
