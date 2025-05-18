@@ -7,7 +7,29 @@ window.onload = () => {
     .then(res => res.text())
     .then(eval)
     .catch(err => Swal.fire('Error', 'Gagal memuat data pegawai', 'error'));
-  // tambahkan listener enter di input PIN
+
+  // Cek userData di localStorage
+  const savedUser = localStorage.getItem('userData');
+  if (savedUser) {
+    userData = JSON.parse(savedUser);
+    // Set UI login sesuai userData
+    document.getElementById("nip").textContent = userData.nip;
+    document.getElementById("subbid").textContent = userData.subbid;
+    document.getElementById("status").textContent = userData.status;
+    document.getElementById("golongan").textContent = userData.golongan;
+    document.getElementById("jabatan").textContent = userData.jabatan;
+    document.getElementById("form-wrapper").style.display = "block";
+
+    // Disable input login
+    document.getElementById("nama").value = userData.nama;
+    document.getElementById("nama").disabled = true;
+    document.getElementById("pin").disabled = true;
+
+    setLogoutButton();
+    loadSesiStatus();
+  }
+
+  // Tambahkan listener enter di input PIN (selalu aktif)
   document.getElementById('pin').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -15,6 +37,7 @@ window.onload = () => {
     }
   });
 };
+
 
 function handlePegawai(data) {
   pegawaiList = data;
@@ -63,6 +86,8 @@ function login() {
     nama: data[0], nip: data[2], subbid: data[3],
     status: data[4], golongan: data[5], jabatan: data[6]
   };
+  localStorage.setItem('userData', JSON.stringify(userData));
+
   document.getElementById("nip").textContent = userData.nip;
   document.getElementById("subbid").textContent = userData.subbid;
   document.getElementById("status").textContent = userData.status;
@@ -79,6 +104,7 @@ function login() {
 }
 
 function logout() {
+   localStorage.removeItem('userData');
    // Enable form login kembali saat logout
   document.getElementById("nama").disabled = false;
   document.getElementById("pin").disabled = false;
